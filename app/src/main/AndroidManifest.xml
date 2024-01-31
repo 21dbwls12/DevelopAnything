@@ -12,10 +12,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DevelopAnything"
         tools:targetApi="31">
+        <activity android:name=".LeftActivity"
+            android:exported="false" />
+        <activity android:name=".RightActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.DevelopAnything">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
