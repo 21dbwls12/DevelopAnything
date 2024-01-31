@@ -9,7 +9,7 @@ Activity를 이용한 화면 전환
 
 ### 제출 일자
 
-2024년 1월 31일 18:30:28
+2024년 1월 31일 11:50:28
 
 ### 문제 설명
 
@@ -19,3 +19,10 @@ Activity를 이용한 화면 전환
 
  <p>Kotlin, Compose, 최소 3개의 Activity</p>
 
+### 사용한 함수
+
+```kotlin
+val context = LocalContext.current
+val intent = Intent(context, MainAcitivity::class.java)
+context.startActivity(intent)
+```
