@@ -26,3 +26,7 @@ val context = LocalContext.current
 val intent = Intent(context, MainAcitivity::class.java)
 context.startActivity(intent)
 ```
+
+### 피드백
+
+ <p>접근제어자 신경쓰기</p>
