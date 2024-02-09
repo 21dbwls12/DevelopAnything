@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +44,8 @@ import androidx.compose.ui.unit.sp
 import com.example.developanything.R
 import com.example.developanything.ui.theme.DevelopAnythingTheme
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.random.Random
 
 class LottoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,19 +94,34 @@ fun LottoScreen() {
     val isNumberMoving = remember {
         mutableStateListOf(false, false, false, false, false, false, false)
     }
-    val currentNumbers = remember {
-        mutableStateListOf(7, 7, 7, 7, 7, 7, 7)
+    val currentNumbers = remember { mutableStateListOf(7, 7, 7, 7, 7, 7, 7) }
+    val generatedNumber = remember { mutableStateListOf(7, 7, 7, 7, 7, 7, 7) }
+    val delayTimes = remember {
+        mutableStateListOf(
+            Random.nextInt(100, 200),
+            Random.nextInt(100, 200),
+            Random.nextInt(100, 200),
+            Random.nextInt(100, 200),
+            Random.nextInt(100, 200),
+            Random.nextInt(100, 200),
+            Random.nextInt(100, 200),
+        )
     }
-    // onClick 안에는 LaunchedEffect를 사용할 수 없으므로, 코루틴 스코프 사
-    val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(key1 = true) {
-        while (isNumberMoving.any()) {
-            for (i in currentNumbers.indices) {
-                if (isNumberMoving[i]) {
-                    currentNumbers[i] = (currentNumbers[i] % 45) + 1
+    var stopIndex by remember { mutableIntStateOf(0) }
+    // onClick 안에는 LaunchedEffect를 사용할 수 없으므로, 코루틴 스코프 사용
+//    val coroutineScope = rememberCoroutineScope()
+    for (i in currentNumbers.indices) {
+        LaunchedEffect(key1 = isNumberMoving[i]) {
+            while (isNumberMoving[i]) {
+                currentNumbers[i] = (currentNumbers[i] % 45) + 1
+                if (i == stopIndex && currentNumbers[i] == generatedNumber[i]) {
+                    isNumberMoving[i] = false
+                    stopIndex++
+                } else if (i == stopIndex && abs(currentNumbers[i] - generatedNumber[i]) < 5) {
+                    delayTimes[i] += 100
                 }
+                delay(delayTimes[i].toLong())
             }
-            delay(100)
         }
     }
 
@@ -126,7 +141,7 @@ fun LottoScreen() {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    // 번호를 중앙에 고정하기 위함. 현재는 애니메이션 사용중으로 주석 처리
+                // 번호를 중앙에 고정하기 위함. 현재는 애니메이션 사용중으로 주석 처리
 //                    .fillMaxHeight(0.9f)
             ) {
                 NumberBox {
@@ -167,14 +182,18 @@ fun LottoScreen() {
                         bonus = (1..45).random()
                     } while (bonus in numberList)
 
-                    coroutineScope.launch {
-                        delay(1000)
-                        for (i in isNumberMoving.indices) {
-                            delay(500)
-                            isNumberMoving[i] = false
-                            currentNumbers[i] = if (i < numberList.size) numberList[i] else bonus
-                        }
+                    for (i in generatedNumber.indices) {
+                        generatedNumber[i] = if (i < numberList.size) numberList[i] else bonus
                     }
+                    // 코루틴 스코프를 이용해 일정 시간이 지난 후에 번호가 멈추게 하는 방법. 현재는 번호가 시간에 따라가 아니라 연속적으로 바뀌다가 생성된 번호와 같을 때 멈추게 하는 방법으로 변경
+//                    coroutineScope.launch {
+//                        delay(1000)
+//                        for (i in isNumberMoving.indices) {
+//                            delay(500)
+//                            isNumberMoving[i] = false
+//                            currentNumbers[i] = if (i < numberList.size) numberList[i] else bonus
+//                        }
+//                    }
                 },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.offset(y = buttonOffsetY.value),
