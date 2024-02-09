@@ -17,5 +17,11 @@ Activity를 이용한 화면 전환
 
 ### 조건 
 
- <p>Kotlin, Compose, 최소 3개의 Activity</p>
+<p>Kotlin, Compose, 최소 3개의 Activity</p>
 
+### 사용한 파일
+
+- basicchangingactivity
+  - MiddleActivity.kt
+  - LeftActivity.kt
+  - RightActivity.kt
