@@ -240,19 +240,12 @@ private fun NumberBox(content: @Composable () -> Unit) {
 
 @Composable
 private fun NumberBall(number: Int, isMoving: Boolean) {
-    val targetY = animateDpAsState(
-        targetValue = if (isMoving) 300.dp else 0.dp,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = ""
-    )
-
     Surface(
         shape = CircleShape,
         color = getBallColor(number),
         modifier = Modifier
             .size(45.dp)
             .padding(5.dp)
-//            .offset(y = targetY.value)
     ) {
         Text(
             text = number.toString(),
