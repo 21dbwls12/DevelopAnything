@@ -12,6 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DevelopAnything"
         tools:targetApi="31">
+        <activity android:name=".lotto.LottoActivity"
+            android:exported="false" />
         <activity android:name=".basicchangingactivity.MiddleActivity"
             android:exported="false" />
         <activity android:name=".basicchangingactivity.LeftActivity"
