@@ -3,27 +3,34 @@ package com.example.developanything.lotto
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.developanything.R
 import com.example.developanything.ui.theme.DevelopAnythingTheme
+import kotlinx.coroutines.delay
 
 class LottoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +60,35 @@ class LottoActivity : ComponentActivity() {
 fun LottoScreen() {
     val numberList = remember { mutableStateListOf(7, 7, 7, 7, 7, 7) }
     var bonus by remember { mutableIntStateOf(7) }
+    // 앱 시작할 때 로또 로고의 애니메이션(중앙에서 좌측 상단으로 이동)
+    var isImageMoved by remember { mutableStateOf(false) }
+    val imageSize = animateDpAsState(
+        targetValue = if (isImageMoved) 100.dp else 700.dp,
+        label = ""
+    )
+    val imagePadding = animateDpAsState(
+        targetValue = if (isImageMoved) 10.dp else 2.dp,
+        label = ""
+    )
+    // 앱 시작할 때 "로또 번호 생성" 버튼의 애니메이션(위에서 아래로 이동, 튕김)
+    var isButtonMoved by remember { mutableStateOf(false) }
+    val buttonOffsetY = animateDpAsState(
+        targetValue = if (isButtonMoved) 300.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = ""
+    )
+    var isButtonBounced by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = true) {
+        delay(1000)
+        isImageMoved = true
+        isButtonMoved = true
+        delay(700)
+        isButtonBounced = true
+    }
 
     Surface(
         modifier = Modifier
@@ -59,19 +96,18 @@ fun LottoScreen() {
             .padding(5.dp),
         color = Color.White,
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.lottologo),
-            contentDescription = "lotto logo"
-        )
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
+            verticalArrangement = Arrangement.Center,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    // 번호를 중앙에 고정하기 위함. 현재는 애니메이션 사용중으로 주석 처리
+//                    .fillMaxHeight(0.9f)
             ) {
                 NumberBox {
                     numberList.forEach { number ->
@@ -91,7 +127,8 @@ fun LottoScreen() {
                     NumberBall(bonus)
                 }
             }
-            Spacer(modifier = Modifier.weight(0.1f))
+            // "로또 번호 생성" 버튼 하단에 고정하기 위함. 현재는 애니메이션 사용중으로 주석 처리
+//            Spacer(modifier = Modifier.weight(0.1f))
             TextButton(
                 onClick = {
                     numberList.clear()
@@ -106,9 +143,30 @@ fun LottoScreen() {
                     } while (bonus in numberList)
                 },
                 shape = RoundedCornerShape(15.dp),
+                modifier = Modifier.offset(y = buttonOffsetY.value),
+                enabled = isButtonBounced,
+                colors = ButtonDefaults.textButtonColors(
+                    disabledContentColor = Color.LightGray,
+                )
             ) {
-                Text(text = "로또 번호 생성", fontWeight = FontWeight.Bold, fontSize = 25.sp)
+                Text(
+                    text = "로또 번호 생성",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 25.sp,
+                )
             }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.lottologo),
+                contentDescription = "lotto logo",
+                modifier = Modifier
+                    .size(imageSize.value)
+                    .padding(top = imagePadding.value, start = imagePadding.value)
+            )
         }
     }
 }
@@ -127,7 +185,7 @@ private fun NumberBox(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun NumberBall(number:Int) {
+private fun NumberBall(number: Int) {
     Surface(
         shape = CircleShape,
         color = Color.Blue,
@@ -140,7 +198,9 @@ private fun NumberBall(number:Int) {
             fontSize = 22.sp,
             color = Color.White,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxSize().padding(2.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(2.dp)
         )
     }
 }
