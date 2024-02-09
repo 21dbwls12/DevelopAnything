@@ -13,11 +13,23 @@ Activity를 이용한 화면 전환
 
 ### 문제 설명
 
-<p>버튼을 누르면 화면을 이동하는 동작을 구현해주세요.</p>
+ <p>버튼을 누르면 화면을 이동하는 동작을 구현해주세요.</p>
 
 ### 조건 
 
-<p>Kotlin, Compose, 최소 3개의 Activity</p>
+ <p>Kotlin, Compose, 최소 3개의 Activity</p>
+
+### 사용한 함수
+
+```kotlin
+val context = LocalContext.current
+val intent = Intent(context, MainAcitivity::class.java)
+context.startActivity(intent)
+```
+
+### 피드백
+
+ <p>접근제어자 신경쓰기</p>
 
 ### 사용한 파일
 
