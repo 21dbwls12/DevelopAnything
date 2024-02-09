@@ -38,6 +38,10 @@ context.startActivity(intent)
   - LeftActivity.kt
   - RightActivity.kt
 
+### 사진
+![스크린샷 2024-02-09 오후 9 33 27](https://github.com/21dbwls12/DevelopAnything/assets/139525941/a8dedd5c-78cf-44c1-adfb-261f0506298d) |![스크린샷 2024-02-09 오후 9 36 59](https://github.com/21dbwls12/DevelopAnything/assets/139525941/893123e4-7220-4564-a907-1e67300092bb) |![스크린샷 2024-02-09 오후 9 37 11](https://github.com/21dbwls12/DevelopAnything/assets/139525941/af142cc1-40a1-4379-bcc1-f4592219f1e8)
+--- | --- | --- | 
+
 ## 로또번호 생성기
 
 ### 목적
