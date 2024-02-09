@@ -147,6 +147,7 @@ fun LottoScreen() {
                 enabled = isButtonBounced,
                 colors = ButtonDefaults.textButtonColors(
                     disabledContentColor = Color.LightGray,
+                    contentColor = Color(0xFF00BBC9),
                 )
             ) {
                 Text(
@@ -188,7 +189,7 @@ private fun NumberBox(content: @Composable () -> Unit) {
 private fun NumberBall(number: Int) {
     Surface(
         shape = CircleShape,
-        color = Color.Blue,
+        color = getBallColor(number),
         modifier = Modifier
             .size(45.dp)
             .padding(5.dp)
@@ -202,5 +203,15 @@ private fun NumberBall(number: Int) {
                 .fillMaxSize()
                 .padding(2.dp)
         )
+    }
+}
+
+private fun getBallColor(number: Int): Color {
+    return when (number) {
+        in 1..10 -> Color(0xFFFBC400)
+        in 11..20 -> Color(0xFF69C8F2)
+        in 21..30 -> Color(0xFFFF7272)
+        in 31..40 -> Color(0xFFAAAAAA)
+        else -> Color(0xFFB0d841)
     }
 }
