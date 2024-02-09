@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.example.developanything.R
 import com.example.developanything.ui.theme.DevelopAnythingTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class LottoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,13 +83,31 @@ fun LottoScreen() {
         label = ""
     )
     var isButtonBounced by remember { mutableStateOf(false) }
-
     LaunchedEffect(key1 = true) {
         delay(1000)
         isImageMoved = true
         isButtonMoved = true
         delay(700)
         isButtonBounced = true
+    }
+    // 로또 번호가 바뀌는 애니메이션
+    val isNumberMoving = remember {
+        mutableStateListOf(false, false, false, false, false, false, false)
+    }
+    val currentNumbers = remember {
+        mutableStateListOf(7, 7, 7, 7, 7, 7, 7)
+    }
+    // onClick 안에는 LaunchedEffect를 사용할 수 없으므로, 코루틴 스코프 사
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(key1 = true) {
+        while (isNumberMoving.any()) {
+            for (i in currentNumbers.indices) {
+                if (isNumberMoving[i]) {
+                    currentNumbers[i] = (currentNumbers[i] % 45) + 1
+                }
+            }
+            delay(100)
+        }
     }
 
     Surface(
@@ -110,8 +130,11 @@ fun LottoScreen() {
 //                    .fillMaxHeight(0.9f)
             ) {
                 NumberBox {
-                    numberList.forEach { number ->
-                        NumberBall(number)
+//                    numberList.forEachIndexed { index, number ->
+//                        NumberBall(number, isNumberMoving[index])
+//                    }
+                    currentNumbers.dropLast(1).forEachIndexed { index, number ->
+                        NumberBall(number, isNumberMoving[index])
                     }
                 }
                 Spacer(modifier = Modifier.width(5.dp))
@@ -124,13 +147,15 @@ fun LottoScreen() {
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 NumberBox {
-                    NumberBall(bonus)
+//                    NumberBall(bonus, isNumberMoving.last())
+                    NumberBall(currentNumbers.last(), isNumberMoving.last())
                 }
             }
             // "로또 번호 생성" 버튼 하단에 고정하기 위함. 현재는 애니메이션 사용중으로 주석 처리
 //            Spacer(modifier = Modifier.weight(0.1f))
             TextButton(
                 onClick = {
+                    isNumberMoving.fill(true)
                     numberList.clear()
                     while (numberList.size < 6) {
                         val random = (1..45).random()
@@ -141,10 +166,19 @@ fun LottoScreen() {
                     do {
                         bonus = (1..45).random()
                     } while (bonus in numberList)
+
+                    coroutineScope.launch {
+                        delay(1000)
+                        for (i in isNumberMoving.indices) {
+                            delay(500)
+                            isNumberMoving[i] = false
+                            currentNumbers[i] = if (i < numberList.size) numberList[i] else bonus
+                        }
+                    }
                 },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.offset(y = buttonOffsetY.value),
-                enabled = isButtonBounced,
+                enabled = isButtonBounced && !isNumberMoving.any { it },
                 colors = ButtonDefaults.textButtonColors(
                     disabledContentColor = Color.LightGray,
                     contentColor = Color(0xFF00BBC9),
@@ -186,13 +220,20 @@ private fun NumberBox(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun NumberBall(number: Int) {
+private fun NumberBall(number: Int, isMoving: Boolean) {
+    val targetY = animateDpAsState(
+        targetValue = if (isMoving) 300.dp else 0.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = ""
+    )
+
     Surface(
         shape = CircleShape,
         color = getBallColor(number),
         modifier = Modifier
             .size(45.dp)
             .padding(5.dp)
+//            .offset(y = targetY.value)
     ) {
         Text(
             text = number.toString(),
