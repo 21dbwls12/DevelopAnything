@@ -152,15 +152,17 @@ fun LottoScreen() {
     ) {
         // 이 코드도 재생됨.(coil 라이브러리 사용한 코드, AsyncImage보다 구버전)
 //        Image(painter = rememberAsyncImagePainter(model = R.raw.colorballbump, imageLoader), contentDescription = null)
-        AsyncImage(
-            model = R.raw.colorballbump,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(0.5f),
-            contentScale = ContentScale.FillHeight
-        )
+        if (isNumberMoving.any { it }) {
+            AsyncImage(
+                model = R.raw.colorballbump,
+                imageLoader = imageLoader,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.5f),
+                contentScale = ContentScale.FillHeight
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -297,95 +299,7 @@ private fun NumberBall(number: Int, isMoving: Boolean) {
 }
 
 
-//@Composable
-//private fun NumberDisplay(number: Int, isMoving: Boolean) {
-//    val targetY = animateDpAsState(
-//        targetValue = if (isMoving) 300.dp else 0.dp,
-//        animationSpec = spring(stiffness = Spring.StiffnessLow),
-//        label = ""
-//    )
-//    Column {
-//        NumberBall(number = number - 1, targetY = targetY)
-//        NumberBall(number = number, targetY = targetY)
-//        NumberBall(number = number + 1, targetY = targetY)
-////        Surface(
-////            shape = CircleShape,
-////            color = getBallColor(number - 1),
-////            modifier = Modifier
-////                .size(45.dp)
-////                .padding(5.dp)
-////                .offset(y = targetY.value)
-////        ) {
-////            Text(
-////                text = ((number - 1) % 45 + 1).toString(),
-////                fontSize = 22.sp,
-////                color = Color.White,
-////                textAlign = TextAlign.Center,
-////                modifier = Modifier
-////                    .fillMaxSize()
-////                    .padding(2.dp)
-////            )
-////        }
-////        Surface(
-////            shape = CircleShape,
-////            color = getBallColor(number),
-////            modifier = Modifier
-////                .size(45.dp)
-////                .padding(5.dp)
-////                .offset(y = targetY.value)
-////        ) {
-////            Text(
-////                text = number.toString(),
-////                fontSize = 22.sp,
-////                color = Color.White,
-////                textAlign = TextAlign.Center,
-////                modifier = Modifier
-////                    .fillMaxSize()
-////                    .padding(2.dp)
-////            )
-////        }
-////        Surface(
-////            shape = CircleShape,
-////            color = getBallColor(number + 1),
-////            modifier = Modifier
-////                .size(45.dp)
-////                .padding(5.dp)
-////                .offset(y = targetY.value)
-////        ) {
-////            Text(
-////                text = ((number + 1) % 45 + 1).toString(),
-////                fontSize = 22.sp,
-////                color = Color.White,
-////                textAlign = TextAlign.Center,
-////                modifier = Modifier
-////                    .fillMaxSize()
-////                    .padding(2.dp)
-////            )
-////        }
-//    }
-//}
-//
-//@Composable
-//private fun NumberBall(number: Int, targetY: State<Dp>) {
-//    Surface(
-//        shape = CircleShape,
-//        color = getBallColor(number),
-//        modifier = Modifier
-//            .size(45.dp)
-//            .padding(5.dp)
-//            .offset(y = targetY.value)
-//    ) {
-//        Text(
-//            text = number.toString(),
-//            fontSize = 22.sp,
-//            color = Color.White,
-//            textAlign = TextAlign.Center,
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(2.dp)
-//        )
-//    }
-//}
+
 
 private fun getBallColor(number: Int): Color {
     return when (number) {
