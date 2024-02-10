@@ -52,7 +52,7 @@ Random.nextInt(20, 100)
   - LottoActivity.kt
 
 ### 사진
-[Screen_recording_20240210_162342.webm](https://github.com/21dbwls12/DevelopAnything/assets/139525941/9562b13b-2816-4af6-ac28-5216f61c27ae)
+https://github.com/21dbwls12/DevelopAnything/assets/139525941/5b28b261-8a80-481b-8e03-6970b9c4a100
 
 ## 기본 화면 전환
 
