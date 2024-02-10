@@ -1,5 +1,6 @@
 package com.example.developanything.lotto
 
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,12 +36,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import com.example.developanything.R
 import com.example.developanything.ui.theme.DevelopAnythingTheme
 import kotlinx.coroutines.delay
@@ -60,6 +68,7 @@ class LottoActivity : ComponentActivity() {
 
 @Composable
 fun LottoScreen() {
+    val context = LocalContext.current
     val numberList = remember { mutableStateListOf(7, 7, 7, 7, 7, 7) }
     var bonus by remember { mutableIntStateOf(7) }
     // 앱 시작할 때 로또 로고의 애니메이션(중앙에서 좌측 상단으로 이동)
@@ -96,15 +105,16 @@ fun LottoScreen() {
     }
     val currentNumbers = remember { mutableStateListOf(7, 7, 7, 7, 7, 7, 7) }
     val generatedNumber = remember { mutableStateListOf(7, 7, 7, 7, 7, 7, 7) }
+    // 번호가 바뀌는 시간 간격을 랜덤으로 설정
     val delayTimes = remember {
         mutableStateListOf(
-            Random.nextInt(100, 200),
-            Random.nextInt(100, 200),
-            Random.nextInt(100, 200),
-            Random.nextInt(100, 200),
-            Random.nextInt(100, 200),
-            Random.nextInt(100, 200),
-            Random.nextInt(100, 200),
+            Random.nextInt(20, 100),
+            Random.nextInt(20, 100),
+            Random.nextInt(20, 100),
+            Random.nextInt(20, 100),
+            Random.nextInt(20, 100),
+            Random.nextInt(20, 100),
+            Random.nextInt(20, 100),
         )
     }
     var stopIndex by remember { mutableIntStateOf(0) }
@@ -118,21 +128,43 @@ fun LottoScreen() {
                     isNumberMoving[i] = false
                     stopIndex++
                 } else if (i == stopIndex && abs(currentNumbers[i] - generatedNumber[i]) < 5) {
-                    delayTimes[i] += 100
+                    delayTimes[i] += 200
                 }
                 delay(delayTimes[i].toLong())
             }
         }
     }
+    // coil을 사용한 gif 이미지 로드 및 재생
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            if (SDK_INT >= 28) {
+                add(ImageDecoderDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
+        }
+        .build()
 
     Surface(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(5.dp),
+            .fillMaxSize(),
         color = Color.White,
     ) {
+        // 이 코드도 재생됨.(coil 라이브러리 사용한 코드, AsyncImage보다 구버전)
+//        Image(painter = rememberAsyncImagePainter(model = R.raw.colorballbump, imageLoader), contentDescription = null)
+        AsyncImage(
+            model = R.raw.colorballbump,
+            imageLoader = imageLoader,
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.5f),
+            contentScale = ContentScale.FillHeight
+        )
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -210,12 +242,17 @@ fun LottoScreen() {
                 )
             }
         }
+//        Glide
+//            .with(context)
+//            .load(R.drawable.lottologo)
+//            .into(ImageView(context))
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(5.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.lottologo),
+                painter = painterResource(id = if (!isImageMoved) R.drawable.lottologo else R.drawable.lottologopng),
                 contentDescription = "lotto logo",
                 modifier = Modifier
                     .size(imageSize.value)
@@ -258,6 +295,97 @@ private fun NumberBall(number: Int, isMoving: Boolean) {
         )
     }
 }
+
+
+//@Composable
+//private fun NumberDisplay(number: Int, isMoving: Boolean) {
+//    val targetY = animateDpAsState(
+//        targetValue = if (isMoving) 300.dp else 0.dp,
+//        animationSpec = spring(stiffness = Spring.StiffnessLow),
+//        label = ""
+//    )
+//    Column {
+//        NumberBall(number = number - 1, targetY = targetY)
+//        NumberBall(number = number, targetY = targetY)
+//        NumberBall(number = number + 1, targetY = targetY)
+////        Surface(
+////            shape = CircleShape,
+////            color = getBallColor(number - 1),
+////            modifier = Modifier
+////                .size(45.dp)
+////                .padding(5.dp)
+////                .offset(y = targetY.value)
+////        ) {
+////            Text(
+////                text = ((number - 1) % 45 + 1).toString(),
+////                fontSize = 22.sp,
+////                color = Color.White,
+////                textAlign = TextAlign.Center,
+////                modifier = Modifier
+////                    .fillMaxSize()
+////                    .padding(2.dp)
+////            )
+////        }
+////        Surface(
+////            shape = CircleShape,
+////            color = getBallColor(number),
+////            modifier = Modifier
+////                .size(45.dp)
+////                .padding(5.dp)
+////                .offset(y = targetY.value)
+////        ) {
+////            Text(
+////                text = number.toString(),
+////                fontSize = 22.sp,
+////                color = Color.White,
+////                textAlign = TextAlign.Center,
+////                modifier = Modifier
+////                    .fillMaxSize()
+////                    .padding(2.dp)
+////            )
+////        }
+////        Surface(
+////            shape = CircleShape,
+////            color = getBallColor(number + 1),
+////            modifier = Modifier
+////                .size(45.dp)
+////                .padding(5.dp)
+////                .offset(y = targetY.value)
+////        ) {
+////            Text(
+////                text = ((number + 1) % 45 + 1).toString(),
+////                fontSize = 22.sp,
+////                color = Color.White,
+////                textAlign = TextAlign.Center,
+////                modifier = Modifier
+////                    .fillMaxSize()
+////                    .padding(2.dp)
+////            )
+////        }
+//    }
+//}
+//
+//@Composable
+//private fun NumberBall(number: Int, targetY: State<Dp>) {
+//    Surface(
+//        shape = CircleShape,
+//        color = getBallColor(number),
+//        modifier = Modifier
+//            .size(45.dp)
+//            .padding(5.dp)
+//            .offset(y = targetY.value)
+//    ) {
+//        Text(
+//            text = number.toString(),
+//            fontSize = 22.sp,
+//            color = Color.White,
+//            textAlign = TextAlign.Center,
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(2.dp)
+//        )
+//    }
+//}
 
 private fun getBallColor(number: Int): Color {
     return when (number) {
