@@ -8,7 +8,7 @@
 
 ### 제출 일자
 
-2024년 1월 31일 18:30:28
+2024년 2월 10일 16:12:28
 
 ### 문제 설명
 
@@ -17,6 +17,42 @@
 ### 조건
 
  <p>Kotlin, Compose, 애니메이션</p>
+
+### 사용한 함수
+
+```kotlin
+val imageLoader = ImageLoader.Builder(context)
+    .components {
+        if (SDK_INT >= 28) {
+            add(ImageDecoderDecoder.Factory())
+        } else {
+            add(GifDecoder.Factory())
+        }
+    }
+    .build()
+AsyncImage(
+    model = R.raw.colorballbump,
+    imageLoader = imageLoader,
+    contentDescription = null,
+    modifier = Modifier
+        .fillMaxSize()
+        .alpha(0.5f),
+    contentScale = ContentScale.FillHeight
+)
+
+LaunchedEffect(key1 = true) {)
+
+val random = (1..45).random()
+Random.nextInt(20, 100)
+```
+
+### 사용한 파일
+
+- lotto
+  - LottoActivity.kt
+
+### 사진
+[Screen_recording_20240210_162342.webm](https://github.com/21dbwls12/DevelopAnything/assets/139525941/9562b13b-2816-4af6-ac28-5216f61c27ae)
 
 ## 기본 화면 전환
 
