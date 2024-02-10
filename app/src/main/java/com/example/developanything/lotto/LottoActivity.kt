@@ -244,10 +244,6 @@ fun LottoScreen() {
                 )
             }
         }
-//        Glide
-//            .with(context)
-//            .load(R.drawable.lottologo)
-//            .into(ImageView(context))
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -297,9 +293,6 @@ private fun NumberBall(number: Int, isMoving: Boolean) {
         )
     }
 }
-
-
-
 
 private fun getBallColor(number: Int): Color {
     return when (number) {
