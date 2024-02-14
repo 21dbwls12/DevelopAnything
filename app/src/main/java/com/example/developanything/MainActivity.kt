@@ -4,12 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.developanything.ui.theme.DevelopAnythingTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,27 +19,33 @@ class MainActivity : ComponentActivity() {
             DevelopAnythingTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = Color.White
                 ) {
-                    Greeting("Android")
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = NavRoutes.Greeting.route
+                    ) {
+                        composable(NavRoutes.Greeting.route) { GreetingScreen(navController) }
+                        composable(NavRoutes.Home.route) { HomeScreen(navController) }
+                        composable(NavRoutes.First.route) {
+                            FirstScreen(
+                                it.arguments?.getString("number") ?: ""
+                            )
+                        }
+                        composable(NavRoutes.Second.route) {
+                            SecondScreen(
+                                it.arguments?.getString("number") ?: ""
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DevelopAnythingTheme {
-        Greeting("Android")
-    }
-}
+
+
+

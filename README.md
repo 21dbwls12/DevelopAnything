@@ -1,10 +1,10 @@
 # 안드로이드 
 
 
-## 로또번호 생성기
+## Navigation Compose 를 이용한 화면 전환
 
 ### 목적
-기능 요구사항 수행
+Navigation Compose 이용한 화면 전환
 
 ### 제출 일자
 
@@ -12,11 +12,11 @@
 
 ### 문제 설명
 
- <p>버튼을 누르면 매번 새로운 로또 번호 조합을 생성해주는 동작을 구현해주세요.</p>
+ <p>버튼을 누르면 화면을 이동하는 동작을 구현해주세요.</p>
 
 ### 조건
 
- <p>Kotlin, Compose, 애니메이션</p>
+ <p>Kotlin, Compose, Navigation Compose, Single Activity</p>
 
 ### 사용한 함수
 
