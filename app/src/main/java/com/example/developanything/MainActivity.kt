@@ -38,6 +38,12 @@ class MainActivity : ComponentActivity() {
                                 it.arguments?.getString("number") ?: ""
                             )
                         }
+                        // 여기서의 0은 Third 클래스의 생성자에 전달되는 인자. 실제로는 사용되지 않고 route를 생성할 때만 사용됨.
+                        composable(NavRoutes.Third(0).route) {
+                            ThirdScreen(
+                                it.arguments?.getString("number") ?: ""
+                            )
+                        }
                     }
                 }
             }

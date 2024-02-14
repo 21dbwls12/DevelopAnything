@@ -17,13 +17,17 @@ fun HomeScreen(navController: NavController) {
         screenName.forEachIndexed { i, name ->
             MoveButton(onClick = { navController.navigate("$name/${i + 1}") }, number = i + 1)
         }
+        MoveButton(
+            onClick = { navController.navigate(NavRoutes.Third(3).createRoute()) },
+            number = 3
+        )
     }
 }
 
 @Composable
 fun MoveButton(onClick: () -> Unit, number: Int) {
     Button(
-        onClick ,
+        onClick,
         shape = RoundedCornerShape(18.dp),
         colors = ButtonDefaults.buttonColors(Color.Black)
     ) {
