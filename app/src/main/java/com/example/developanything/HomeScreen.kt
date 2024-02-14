@@ -14,9 +14,11 @@ import androidx.navigation.NavController
 fun HomeScreen(navController: NavController) {
     CenterColumn {
         val screenName = listOf("first", "second")
+        // 클래스 사용하지 않고 정의
         screenName.forEachIndexed { i, name ->
             MoveButton(onClick = { navController.navigate("$name/${i + 1}") }, number = i + 1)
         }
+        // 클래스 사용해서 정의
         MoveButton(
             onClick = { navController.navigate(NavRoutes.Third(3).createRoute()) },
             number = 3

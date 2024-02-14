@@ -2,6 +2,7 @@ package com.example.developanything
 
 import androidx.compose.runtime.Composable
 
+// 1번 화면
 @Composable
 fun FirstScreen(number: String) {
     CenterColumn {
@@ -9,6 +10,7 @@ fun FirstScreen(number: String) {
     }
 }
 
+// 2번 화면
 @Composable
 fun SecondScreen(number: String) {
     CenterColumn {
@@ -16,6 +18,7 @@ fun SecondScreen(number: String) {
     }
 }
 
+// 3번 화면
 @Composable
 fun ThirdScreen(number: String) {
     CenterColumn {

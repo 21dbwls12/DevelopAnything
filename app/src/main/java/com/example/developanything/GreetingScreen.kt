@@ -15,6 +15,7 @@ import kotlinx.coroutines.delay
 fun GreetingScreen(navController: NavController){
     LaunchedEffect(key1 = true){
         delay(2000)
+        // 뒤로가기 눌렀을 때 현재 화면으로는 더이상 돌아오지 않게 하기 위해 popUpTo 사용.
         navController.navigate("home") {
             popUpTo("greeting") {
                 inclusive = true
