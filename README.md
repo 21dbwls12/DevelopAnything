@@ -1,16 +1,27 @@
 # 안드로이드 
 
 
-## 브랜치
+## 안드로이드 Compose Animation
 
-### 001.basicChangingActivity
+### 목적
+Compose를 활용한 Animation 적용
 
-- [안드로이드 기본 화면 전환](https://github.com/21dbwls12/DevelopAnything/tree/001.basicChangingActivity)
+### 제출 일자
 
-### 002.lotto
+2024년 2월 14일 21:08:28
 
-- [로또 번호 생성기](https://github.com/21dbwls12/DevelopAnything/tree/002.lotto)
+### 문제 설명
 
-### 003.navigation
+ <p>'다음' 버튼을 누르면 이미지가 변경되는 동작을 Animation을 포함해 구현해주세요.</p>
 
-- [Navigation Compose를 이용한 화면 전환](https://github.com/21dbwls12/DevelopAnything/tree/003.navigation)
+### 조건
+
+ <p>Kotlin, Compose, Crossfade</p>
+
+### 사용한 함수
+
+```kotlin
+
+```
+
+### 사진
