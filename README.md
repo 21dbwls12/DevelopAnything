@@ -8,7 +8,7 @@
 
 ### 제출 일자
 
-2024년 1월 31일 18:30:28
+2024년 2월 10일 16:12:28
 
 ### 문제 설명
 
@@ -18,39 +18,38 @@
 
  <p>Kotlin, Compose, 애니메이션</p>
 
-## 기본 화면 전환
-
-### 목적
-
-Activity를 이용한 화면 전환
-
-### 제출 일자
-
-2024년 1월 31일 18:30:28
-
-### 문제 설명
-
- <p>버튼을 누르면 화면을 이동하는 동작을 구현해주세요.</p>
-
-### 조건 
-
- <p>Kotlin, Compose, 최소 3개의 Activity</p>
-
 ### 사용한 함수
 
 ```kotlin
-val context = LocalContext.current
-val intent = Intent(context, MainAcitivity::class.java)
-context.startActivity(intent)
+val imageLoader = ImageLoader.Builder(context)
+    .components {
+        if (SDK_INT >= 28) {
+            add(ImageDecoderDecoder.Factory())
+        } else {
+            add(GifDecoder.Factory())
+        }
+    }
+    .build()
+AsyncImage(
+    model = R.raw.colorballbump,
+    imageLoader = imageLoader,
+    contentDescription = null,
+    modifier = Modifier
+        .fillMaxSize()
+        .alpha(0.5f),
+    contentScale = ContentScale.FillHeight
+)
+
+LaunchedEffect(key1 = true) {)
+
+val random = (1..45).random()
+Random.nextInt(20, 100)
 ```
-
-### 피드백
-
- <p>접근제어자 신경쓰기</p>
 
 ### 사용한 파일
 
-- basicchangingactivity
-  - MiddleActivity.kt
-  - LeftActivity.kt
-  - RightActivity.kt
+- lotto
+  - LottoActivity.kt
+
+### 사진
+https://github.com/21dbwls12/DevelopAnything/assets/139525941/5b28b261-8a80-481b-8e03-6970b9c4a100
