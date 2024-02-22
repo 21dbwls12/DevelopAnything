@@ -33,9 +33,7 @@ Crossfade(targetState = currentPage) { screen ->
 
 ### 사진
 
-
-
-
 [crossfademp4.mp4](https://github.com/21dbwls12/DevelopAnything/assets/139525941/5e770bc3-bc7c-48c8-a5a5-a7d754d6be89)
 
 
+![50crossfadegif](https://github.com/21dbwls12/DevelopAnything/assets/139525941/913c52de-fe6e-4f89-9479-5cb17574ee30)
