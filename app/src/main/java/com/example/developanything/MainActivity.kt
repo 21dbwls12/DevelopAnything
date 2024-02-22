@@ -47,7 +47,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting() {
-    var currentNumber by remember { mutableIntStateOf(0) }
+    val first = (0..2).random()
+    var currentNumber by remember { mutableIntStateOf(first) }
 
     // Crossfade 애니메이션 이용해서 이미지 변경
     Crossfade(targetState = currentNumber, label = "") {
