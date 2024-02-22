@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting() {
+private fun Greeting() {
     val first = (0..2).random()
     var currentNumber by remember { mutableIntStateOf(first) }
 
@@ -85,7 +85,7 @@ fun Greeting() {
 
 
 @Composable
-fun ChangeImage(name: Int) {
+private fun ChangeImage(name: Int) {
     Image(
         painter = painterResource(id = name),
         contentDescription = "poster",
