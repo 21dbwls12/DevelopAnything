@@ -32,3 +32,5 @@ Crossfade(targetState = currentPage) { screen ->
 ```
 
 ### 사진
+
+[Screen_recording_20240222_164844.webm](https://github.com/21dbwls12/DevelopAnything/assets/139525941/31729ae9-9970-4419-8d16-5b4a864c0b5e)
