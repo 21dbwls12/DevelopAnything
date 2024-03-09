@@ -31,6 +31,29 @@ Crossfade(targetState = currentPage) { screen ->
 }
 ```
 
+### 피드백
+
+```kotlin
+onClick = {
+    var temp = (0..2).random()
+    while (currentNumber == temp) {
+        temp = (0..2).random()
+    }
+    currentNumber = temp
+},
+```
+
+<p>while 위험도가 높음. 경우의 수가 많을 때, 최악의 경우(연속으로 계속 같은 숫자가 나올는 경우)에는 연산이 길어짐.</p>
+
+```kotlin
+onClick = {
+    var temp = (0..2).minus(currentNumber).random()
+    currentNumber = temp
+},
+```
+
+ <p>위의 코드처럼 현재 값을 뺀 범위에서 랜덤 숫자를 뽑는 방식으로 진행하면 안정성과 가독성이 올라감</p>
+
 ### 사진
 
 [crossfademp4.mp4](https://github.com/21dbwls12/DevelopAnything/assets/139525941/5e770bc3-bc7c-48c8-a5a5-a7d754d6be89)
