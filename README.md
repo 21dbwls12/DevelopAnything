@@ -45,6 +45,14 @@ LaunchedEffect(key1 = true) {)
 val random = (1..45).random()
 Random.nextInt(20, 100)
 ```
+### 피드백
+
+ <p>액티비티 시작이 MainActivity로 한 이유가 따로 없다면 LottoActivity에서 시작하기</p>
+ <p>LottoScreen()이 너무 길어서 가독성이 낮아서 함수화하면서 가독성 고민하기</p>
+
+  - 뷰와 로직을 구분하는 동작부터 함수화 
+  - 함수화로 관계를 독립적으로 가져가는 작업이 '모듈화'의 첫 시작!
+  - 큰 개념을 2~3개로 나누고 다시 하위를 2~3개로 나누기
 
 ### 사용한 파일
 
