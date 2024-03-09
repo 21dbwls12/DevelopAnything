@@ -59,6 +59,12 @@ navController.navigate("home") {
 }
 ```
 
+### 피드백
+
+ <p>kt 파일 구분은 칭찬받았음!</p>
+ <p>Screen 단위로 분리한 것은 가독성과 관리에 좋은 설계</p>
+ <p>Access Modifier 신경쓰기!</p>
+
 ### 사진
 ![스크린샷 2024-02-14 오후 9 18 38](https://github.com/21dbwls12/DevelopAnything/assets/139525941/bee9a135-e015-4f79-bf85-808ebde1711d)|![스크린샷 2024-02-14 오후 9 14 09](https://github.com/21dbwls12/DevelopAnything/assets/139525941/f76d059a-eaf3-4a8c-964b-473b556feefb)
 
