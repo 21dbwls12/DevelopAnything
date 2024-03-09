@@ -45,6 +45,7 @@ LaunchedEffect(key1 = true) {)
 val random = (1..45).random()
 Random.nextInt(20, 100)
 ```
+
 ### 피드백
 
  <p>액티비티 시작이 MainActivity로 한 이유가 따로 없다면 LottoActivity에서 시작하기</p>
