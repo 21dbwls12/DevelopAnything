@@ -1,20 +1,37 @@
-# 안드로이드 
+# 안드로이드
 
 
-## 브랜치
+## 안드로이드 Todo List
 
-### 001.basicChangingActivity
+### 목적
+앱 기능 구현
 
-- [안드로이드 기본 화면 전환](https://github.com/21dbwls12/DevelopAnything/tree/001.basicChangingActivity)
+### 제출 일자
 
-### 002.lotto
+2024년 3월 10일 16:34:28
 
-- [로또 번호 생성기](https://github.com/21dbwls12/DevelopAnything/tree/002.lotto)
+### 문제 설명
 
-### 003.navigation
+ <p>한 화면으로 구성된 Todo List 를 앱을 구성하세요.</p>
+ <p>앱 재실행 시 리스트 초기화 ( DB 미사용 )</p>
 
-- [Navigation Compose를 이용한 화면 전환](https://github.com/21dbwls12/DevelopAnything/tree/003.navigation)
+### 조건
 
-### 004.composeAnimation
+ <p>todo 텍스트 입력창, 추가 버튼, 리스트 표시</p>
 
-- [안드로이드 Compose Animation](https://github.com/21dbwls12/DevelopAnything/tree/004.composeAnimation)
+### 사용한 함수
+
+```kotlin
+// 현재 시간
+val currentTime = LocalDate.now()
+// 현재 달
+val month = currentTime.dayOfYear
+// 현재 날짜
+val date = currentTime.dayOfMonth
+// 현재 요일
+val day = currentTime.dayOfWeek
+```
+
+### 피드백
+
+### 사진
