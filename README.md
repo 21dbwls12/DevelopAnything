@@ -8,7 +8,7 @@
 
 ### 제출 일자
 
-2024년 3월 10일 16:34:28
+2024년 3월 10일 21:06:28
 
 ### 문제 설명
 
@@ -30,6 +30,22 @@ val month = currentTime.dayOfYear
 val date = currentTime.dayOfMonth
 // 현재 요일
 val day = currentTime.dayOfWeek
+
+// TextField 엔터 입력시 실행할 내용을 설정하는 파라미터
+keyboardActions = KeyboardActions(onDone = { addTodoInList() })
+
+// 체크 박스
+var checked by remember { mutableStateOf(false) }
+
+Checkbox(
+    checked = checked,
+    onCheckedChange = { checked = it }
+)
+
+// 취소섬
+Text(
+    textDecoration = TextDecoration.LineThrough
+)
 ```
 
 ### 피드백
