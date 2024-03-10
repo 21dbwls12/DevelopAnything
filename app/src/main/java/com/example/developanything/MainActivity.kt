@@ -14,8 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
@@ -68,6 +69,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun TodoListScreen() {
     val todoList = remember { mutableStateListOf<String>() }
+    val checkedRemoveIndices = remember { mutableStateListOf<Int>() }
     // 추가 버튼을 눌렀을 때 TextField를 나타나게 하기 위함
     var clickAdd by remember { mutableStateOf(false) }
     var clickDelete by remember { mutableStateOf(false) }
@@ -86,13 +88,22 @@ private fun TodoListScreen() {
         TopBar(
             setClickAdd = { clickAdd = it },
             setClickDelete = { clickDelete = it },
-            clickDelete = clickDelete
+            clickDelete = clickDelete,
+            todoList = todoList,
+            removeIndexList = checkedRemoveIndices
         )
         SpaceForPartition()
         PartitionLine()
         SpaceForPartition()
 
-        TodoList(todoList, clickAdd, setClickAdd = { clickAdd = it }, focusRequester)
+        TodoList(
+            todoList,
+            clickAdd,
+            setClickAdd = { clickAdd = it },
+            focusRequester,
+            clickDelete,
+            checkedRemoveIndices
+        )
     }
 }
 
@@ -100,7 +111,9 @@ private fun TodoListScreen() {
 private fun TopBar(
     setClickAdd: (Boolean) -> Unit,
     setClickDelete: (Boolean) -> Unit,
-    clickDelete: Boolean
+    clickDelete: Boolean,
+    todoList: MutableList<String>,
+    removeIndexList: MutableList<Int>
 ) {
     val currentTime = LocalDate.now()
     // 날짜
@@ -117,9 +130,12 @@ private fun TopBar(
             icon = Icons.Outlined.Delete,
             color = Color.Red,
             onClick = {
-                setClickDelete(!clickDelete)
+                if (todoList.isNotEmpty()) {
+                    setClickDelete(!clickDelete)
+                }
                 if (clickDelete) {
-
+                    removeIndexList.sortedDescending().forEach { todoList.removeAt(it) }
+                    removeIndexList.clear()
                 }
             }
         )
@@ -129,6 +145,8 @@ private fun TopBar(
             color = Color.Blue,
             onClick = {
                 setClickAdd(true)
+                setClickDelete(false)
+                removeIndexList.clear()
             }
         )
     }
@@ -161,16 +179,39 @@ private fun TodoList(
     todoList: MutableList<String>,
     clickAdd: Boolean,
     setClickAdd: (Boolean) -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    clickDelete: Boolean,
+    checkedRemoveIndices: MutableList<Int>
 ) {
 
 
-    Column {
-
+    Row {
+        if (clickDelete) {
+            LazyColumn {
+                items(todoList.size) {
+                    ListContainer {
+                        TodoWithCheckbox(
+                            text = null,
+                            clickDelete = clickDelete,
+                            checkCondition = clickDelete,
+                            checkedRemoveIndices = checkedRemoveIndices,
+                            index = it
+                        )
+                    }
+                }
+            }
+        }
         LazyColumn {
-            items(todoList) { todo ->
+
+            itemsIndexed(todoList) { index, todo ->
                 ListContainer {
-                    TodoListWithCheckbox(todo)
+                    TodoWithCheckbox(
+                        text = todo,
+                        clickDelete = clickDelete,
+                        checkCondition = !clickDelete,
+                        checkedRemoveIndices = checkedRemoveIndices,
+                        index = index
+                    )
                 }
             }
             if (clickAdd) {
@@ -195,7 +236,6 @@ private fun ListContainer(content: @Composable () -> Unit) {
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .fillMaxWidth()
             .padding(start = 5.dp, end = 5.dp)
     ) {
         content()
@@ -203,17 +243,31 @@ private fun ListContainer(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun TodoListWithCheckbox(text: String?) {
+fun TodoWithCheckbox(
+    text: String?,
+    clickDelete: Boolean,
+    checkCondition: Boolean,
+    checkedRemoveIndices: MutableList<Int>,
+    index: Int
+) {
     var checked by remember { mutableStateOf(false) }
 
     Checkbox(
         checked = checked,
-        onCheckedChange = { checked = it },
+        onCheckedChange = { isChecked ->
+            checked = isChecked
+            if (clickDelete && isChecked) {
+                checkedRemoveIndices.add(index)
+            } else {
+                checkedRemoveIndices.remove(index)
+            }
+        },
         colors = CheckboxDefaults.colors(
-            uncheckedColor = Color(0xFF024959),
-            checkedColor = Color(0xFF024959),
+            uncheckedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+            checkedColor = if (clickDelete) Color.Red else Color(0xFF024959),
             checkmarkColor = Color.White
-        )
+        ),
+        enabled = checkCondition
     )
     Text(
         text = text ?: "",
@@ -243,18 +297,42 @@ private fun AddTodo(
             focusedContainerColor = Color.Transparent,
             focusedTextColor = Color.Black,
         ),
-        maxLines = 2,
+        // 엔터키 사용하기 위한 설정
+        singleLine = true,
         // text underline 제거
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        // 엔터키 누르면 밑의 check 아이콘 버튼 누른 것과 동일한 기능
+        keyboardActions = KeyboardActions(onDone = {
+            addTodoInList(
+                text = text,
+                todoList = todoList,
+                setClickAdd = setClickAdd,
+                setText = { text = it }
+            )
+        }),
         modifier = Modifier
             .fillMaxWidth(0.9f)
             .focusRequester(focusRequester)
     )
     IconButtons(icon = Icons.Rounded.Check, color = Color.Blue) {
-        if (text.isNotBlank()) {
-            todoList.add(text)
-            text = ""
-            setClickAdd(false)
-        }
+        addTodoInList(
+            text = text,
+            todoList = todoList,
+            setClickAdd = setClickAdd,
+            setText = { text = it }
+        )
+    }
+}
+
+fun addTodoInList(
+    text: String,
+    todoList: MutableList<String>,
+    setClickAdd: (Boolean) -> Unit,
+    setText: (String) -> Unit
+) {
+    if (text.isNotBlank()) {
+        todoList.add(text)
+        setText("")
+        setClickAdd(false)
     }
 }
