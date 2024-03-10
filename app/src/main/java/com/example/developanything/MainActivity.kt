@@ -81,16 +81,29 @@ private fun TodoListScreen() {
         }
     }
 
+    fun handleAddClick() {
+        clickAdd = true
+        clickDelete = false
+        checkedRemoveIndices.clear()
+    }
+
+    fun handleDeleteClick() {
+        if (todoList.isNotEmpty()) {
+            clickDelete = !clickDelete
+        }
+        if (!clickDelete) {
+            checkedRemoveIndices.sortedDescending().forEach { todoList.removeAt(it) }
+            checkedRemoveIndices.clear()
+        }
+    }
+
     Column(
         modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
     ) {
         // clickAdd의 상태를 다른 스코프에서도 변경할 수 있음
         TopBar(
-            setClickAdd = { clickAdd = it },
-            setClickDelete = { clickDelete = it },
-            clickDelete = clickDelete,
-            todoList = todoList,
-            removeIndexList = checkedRemoveIndices
+            setClickAdd = ::handleAddClick,
+            setClickDelete = ::handleDeleteClick,
         )
         SpaceForPartition()
         PartitionLine()
@@ -109,11 +122,8 @@ private fun TodoListScreen() {
 
 @Composable
 private fun TopBar(
-    setClickAdd: (Boolean) -> Unit,
-    setClickDelete: (Boolean) -> Unit,
-    clickDelete: Boolean,
-    todoList: MutableList<String>,
-    removeIndexList: MutableList<Int>
+    setClickAdd: () -> Unit,
+    setClickDelete: () -> Unit,
 ) {
     val currentTime = LocalDate.now()
     // 날짜
@@ -130,13 +140,7 @@ private fun TopBar(
             icon = Icons.Outlined.Delete,
             color = Color.Red,
             onClick = {
-                if (todoList.isNotEmpty()) {
-                    setClickDelete(!clickDelete)
-                }
-                if (clickDelete) {
-                    removeIndexList.sortedDescending().forEach { todoList.removeAt(it) }
-                    removeIndexList.clear()
-                }
+                setClickDelete()
             }
         )
         Text(text = date.toString(), color = Color(0xFFF2C12E), fontSize = 40.sp)
@@ -144,9 +148,7 @@ private fun TopBar(
             icon = Icons.Rounded.Add,
             color = Color.Blue,
             onClick = {
-                setClickAdd(true)
-                setClickDelete(false)
-                removeIndexList.clear()
+                setClickAdd()
             }
         )
     }
@@ -183,8 +185,6 @@ private fun TodoList(
     clickDelete: Boolean,
     checkedRemoveIndices: MutableList<Int>
 ) {
-
-
     Row {
         if (clickDelete) {
             LazyColumn {
@@ -202,7 +202,6 @@ private fun TodoList(
             }
         }
         LazyColumn {
-
             itemsIndexed(todoList) { index, todo ->
                 ListContainer {
                     TodoWithCheckbox(
@@ -226,7 +225,6 @@ private fun TodoList(
                 }
             }
         }
-
     }
 }
 
