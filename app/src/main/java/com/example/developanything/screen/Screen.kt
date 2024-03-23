@@ -1,4 +1,4 @@
-package com.example.developanything
+package com.example.developanything.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
