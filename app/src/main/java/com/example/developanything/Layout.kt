@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
+// 화면 구성 요소
 @Composable
 fun IconButtons(icon: ImageVector, color: Color, onClick: () -> Unit) {
     IconButton(onClick = onClick) {

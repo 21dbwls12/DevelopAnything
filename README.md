@@ -20,7 +20,26 @@ Live 프로젝트 관리 훈련
 ### 사용한 함수
 
 ```kotlin
+// 프로젝트 수준 그래들
+id("com.google.devtools.ksp") version "1.9.23-1.0.19" apply false
+// 앱 수준 그래들
+plugins {
+    id("com.google.devtools.ksp")
+}
+dependencies {
+    val room_version = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    ksp("androidx.room:room-compiler:$room_version")
+
+    implementation("androidx.room:room-ktx:$room_version")
+}
 ```
+[Room 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/training/data-storage/room?hl=ko) 
+[kapt에서 ksp로 이전 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/build/migrate-to-ksp?hl=ko)
+[ksp 최신 버전 확인](https://github.com/google/ksp/releases)
 
 ### 피드백
 

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
 
+// 전체 화면 틀 구성
 @Composable
 fun TodoListScreen() {
     val todoList = remember { mutableStateListOf<String>() }
