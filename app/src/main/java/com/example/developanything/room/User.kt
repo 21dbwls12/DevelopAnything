@@ -11,6 +11,6 @@ data class User(
     @ColumnInfo(name = "todo") val todo: String?,
     // 완료했는지 안했는지 확인
     @ColumnInfo(name = "isFinished") val isFinished: Boolean,
-    // 날짜별로 저장하기
+    // 날짜별로 저장
     @ColumnInfo(name = "date") val date: Int,
 )
