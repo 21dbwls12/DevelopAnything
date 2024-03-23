@@ -40,6 +40,7 @@ dependencies {
 [Room 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/training/data-storage/room?hl=ko)   
 [kapt에서 ksp로 이전 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/build/migrate-to-ksp?hl=ko)  
 [ksp 최신 버전 확인](https://github.com/google/ksp/releases)  
+[Kotlin과 Compose와의 호환 버전 확인](https://developer.android.com/jetpack/androidx/releases/compose-kotlin?hl=ko)  
 
 ### 피드백
 

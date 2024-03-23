@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     // ksp 사용하기 위해 추가
-//    id("com.google.devtools.ksp")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -71,14 +71,14 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
 //    //Room
-//    val room_version = "2.6.1"
-//
-//    implementation("androidx.room:room-runtime:$room_version")
-//    annotationProcessor("androidx.room:room-compiler:$room_version")
-//
-//    // To use Kotlin Symbol Processing (KSP)
-//    // ksp 사용하려면 따로 프로젝트 수준의 그래들에 추가해야함
-//    ksp("androidx.room:room-compiler:$room_version")
+    val room_version = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // To use Kotlin Symbol Processing (KSP)
+    // ksp 사용하려면 따로 프로젝트 수준의 그래들에 추가해야함
+    ksp("androidx.room:room-compiler:$room_version")
 //
 //    // optional - Kotlin Extensions and Coroutines support for Room
 //    implementation("androidx.room:room-ktx:$room_version")
