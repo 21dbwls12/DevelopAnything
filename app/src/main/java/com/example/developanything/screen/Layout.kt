@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,9 +32,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.room.Room
+import com.example.developanything.room.AppDatabase
+import com.example.developanything.room.MIGRATION_1_2
+import com.example.developanything.room.MIGRATION_2_3
+import com.example.developanything.room.MIGRATION_3_4
+import com.example.developanything.room.Todo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter.BASIC_ISO_DATE
 
 // 화면 구성 요소
 @Composable
@@ -113,10 +125,29 @@ fun AddTodo(
     focusToTextField: FocusRequester
 ) {
     var text by remember { mutableStateOf("") }
+    val currentTime = LocalDate.now()
+    // 현재 년, 월, 일을 20240323 이런식으로 출력해줌
+    val savedDate = currentTime.format(BASIC_ISO_DATE)
+    val context = LocalContext.current
+    val db = remember {
+        Room.databaseBuilder(
+            context,
+            AppDatabase::class.java, "todo.db"
+        ).addMigrations(
+            MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4
+        ).build()
+    }
+    val scope = rememberCoroutineScope()
 
     fun addTodoInList() {
         if (text.isNotBlank()) {
             todoList.add(text)
+            // db에 추가할 객체 생성
+            val newTodo = Todo(todo = text, date = savedDate)
+            // 위에서 생성한 객체 db에 추가
+            scope.launch(Dispatchers.IO) {
+                db.todoDao().insertAll(newTodo)
+            }
             text = ""
             setClickAdd(false)
         }

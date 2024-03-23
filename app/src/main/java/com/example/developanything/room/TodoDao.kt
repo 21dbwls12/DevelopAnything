@@ -7,16 +7,16 @@ import androidx.room.Query
 import androidx.room.Update
 
 @Dao
-interface UserDao {
-    @Query("SELECT * FROM user")
-    fun getAll(): List<User>
+interface TodoDao {
+    @Query("SELECT * FROM todo")
+    fun getAll(): List<Todo>
 
     @Insert
-    fun insertAll(vararg users: User)
+    fun insertAll(vararg users: Todo)
 
     @Update
-    fun updateUsers(vararg users: User)
+    fun updateUsers(vararg users: Todo)
 
     @Delete
-    fun delete(user: User)
+    fun delete(user: Todo)
 }
