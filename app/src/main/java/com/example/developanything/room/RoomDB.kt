@@ -8,6 +8,8 @@ class RoomDB private constructor(context: Context) {
     private val db = Room.databaseBuilder(
         context,
         AppDatabase::class.java, "todo.db"
+    ).addMigrations(
+        MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4
     ).build()
 
     private val todoDao = db.todoDao()

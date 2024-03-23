@@ -41,6 +41,7 @@ import com.example.developanything.room.AppDatabase
 import com.example.developanything.room.MIGRATION_1_2
 import com.example.developanything.room.MIGRATION_2_3
 import com.example.developanything.room.MIGRATION_3_4
+import com.example.developanything.room.RoomDB
 import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,14 +130,6 @@ fun AddTodo(
     // 현재 년, 월, 일을 20240323 이런식으로 출력해줌
     val savedDate = currentTime.format(BASIC_ISO_DATE)
     val context = LocalContext.current
-    val db = remember {
-        Room.databaseBuilder(
-            context,
-            AppDatabase::class.java, "todo.db"
-        ).addMigrations(
-            MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4
-        ).build()
-    }
     val scope = rememberCoroutineScope()
 
     fun addTodoInList() {
@@ -146,7 +139,7 @@ fun AddTodo(
             val newTodo = Todo(todo = text, date = savedDate)
             // 위에서 생성한 객체 db에 추가
             scope.launch(Dispatchers.IO) {
-                db.todoDao().insertAll(newTodo)
+                RoomDB.getInstance(context).insertTodo(newTodo)
             }
             text = ""
             setClickAdd(false)
