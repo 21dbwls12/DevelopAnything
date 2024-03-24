@@ -1,8 +1,10 @@
 package com.example.developanything.room
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.room.Room
-import kotlinx.coroutines.flow.Flow
+import com.example.developanything.screen.currentTimeFormat
 
 // Room 데이터베이스를 사용하기 위한 class
 // 현재 파일에서 함수들로 다 구분되어있고 파일도 2개라 db를 scope마다 계속 선언해주는 것보다 class에서 관리하는 게 더 나을 것 같다고 생각되어 class 선언
@@ -29,11 +31,14 @@ class RoomDB private constructor(context: Context) {
         }
     }
 
+    @Composable
+    fun getTodoList(): List<Todo> {
+        val currentDate = currentTimeFormat()
+        // 코루틴 이용하니깐 db가 바뀌는 게 화면에서 바로바로 확인 가능
+        return (todoDao.getAll().collectAsState(initial = emptyList()).value).filter { it.date == currentDate}
+    }
     fun insertTodo(newTodo: Todo) {
         todoDao.insertAll(newTodo)
-    }
-    fun getTodo(): Flow<List<Todo>> {
-        return todoDao.getAll()
     }
     fun deleteTodo(selectedTodo: Todo) {
         todoDao.delete(selectedTodo)

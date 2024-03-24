@@ -14,7 +14,6 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,10 +42,8 @@ fun TodoListScreen() {
     var clickDelete by remember { mutableStateOf(false) }
     val focusToTextField = remember { FocusRequester() }
 
-    val currentDate = currentTimeFormat()
     val context = LocalContext.current
-    val todoList by RoomDB.getInstance(context).getTodo().collectAsState(initial = emptyList())
-    val filteredList = todoList.filter { it.date == currentDate }
+    val filteredList = RoomDB.getInstance(context).getTodoList()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(clickAdd) {
@@ -146,11 +143,8 @@ private fun TodoList(
     clickDelete: Boolean,
     checkedRemoveUids: MutableList<Int>
 ) {
-    val currentDate = currentTimeFormat()
     val context = LocalContext.current
-    // 코루틴 이용하니깐 db가 바뀌는 게 화면에서 바로바로 확인 가능
-    val todoList by RoomDB.getInstance(context).getTodo().collectAsState(initial = emptyList())
-    val filteredList = todoList.filter { it.date == currentDate }
+    val filteredList = RoomDB.getInstance(context).getTodoList()
 
     Row {
         if (clickDelete) {
