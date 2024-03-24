@@ -11,7 +11,7 @@ data class Todo(
     // 할 일
     @ColumnInfo(name = "todo") val todo: String,
     // 완료했는지 안했는지 확인
-    @ColumnInfo(name = "isFinished") val isFinished: Boolean? = false,
+    @ColumnInfo(name = "isFinished") var isFinished: Boolean? = false,
     // 날짜별로 저장
     @ColumnInfo(name = "date") val date: String,
 )

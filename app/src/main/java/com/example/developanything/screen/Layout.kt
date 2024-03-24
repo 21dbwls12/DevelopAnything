@@ -36,11 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.room.Room
-import com.example.developanything.room.AppDatabase
-import com.example.developanything.room.MIGRATION_1_2
-import com.example.developanything.room.MIGRATION_2_3
-import com.example.developanything.room.MIGRATION_3_4
 import com.example.developanything.room.RoomDB
 import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
@@ -72,7 +67,6 @@ fun PartitionLine() {
 }
 
 
-
 @Composable
 fun ListContainer(content: @Composable () -> Unit) {
     Row(
@@ -87,22 +81,40 @@ fun ListContainer(content: @Composable () -> Unit) {
 
 @Composable
 fun TodoWithCheckbox(
-    text: String?,
+    // db 추가하면서 기존에 index와 text값을 따로 받아오던 것을 db table의 행 하나를 통째로 받아오는 것으로 수정
+    todo: Todo,
     clickDelete: Boolean,
     checkCondition: Boolean,
-    checkedRemoveIndices: MutableList<Int>,
-    index: Int
+    checkedRemoveUids: MutableList<Int>,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var checked by remember { mutableStateOf(false) }
+    // 지울 내용을 체크하는 기능이랑 일반 체크리스트 기능이 동시에 이 함수를 이용하고 있어서 휴지통 아이콘을 눌렀을 때 db에 저장되어있는 정보가 표현되는 문제를 해결하기 위함
+    if (!clickDelete) {
+        checked = todo.isFinished ?: false
+    }
+    // 기존에 text를 따로 받아오던 것도 위의 checked와 같은 오류가 생김 (clickDelete가 true가 되면 빨간색 체크 박스에만 없어야하는데 원래 화면에 있던 text가 같이 사라짐)
+    var text by remember { mutableStateOf("") }
+    if (!clickDelete) {
+        text = todo.todo
+    }
 
     Checkbox(
         checked = checked,
         onCheckedChange = { isChecked ->
             checked = isChecked
+            // 체크 박스 눌렀을 때 db에 있는 Boolean 값이 바뀌도록 설정
+            if (!clickDelete) {
+                scope.launch(Dispatchers.IO) {
+                    todo.isFinished = isChecked
+                    RoomDB.getInstance(context).updateTodo(todo)
+                }
+            }
             if (clickDelete && isChecked) {
-                checkedRemoveIndices.add(index)
+                checkedRemoveUids.add(todo.uid)
             } else {
-                checkedRemoveIndices.remove(index)
+                checkedRemoveUids.remove(todo.uid)
             }
         },
         colors = CheckboxDefaults.colors(
@@ -113,7 +125,7 @@ fun TodoWithCheckbox(
         enabled = checkCondition
     )
     Text(
-        text = text ?: "",
+        text = text,
         // text 취소선(체크박스를 눌렀을 때만)
         textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None
     )
@@ -121,20 +133,17 @@ fun TodoWithCheckbox(
 
 @Composable
 fun AddTodo(
-    todoList: MutableList<String>,
     setClickAdd: (Boolean) -> Unit,
     focusToTextField: FocusRequester
 ) {
     var text by remember { mutableStateOf("") }
-    val currentTime = LocalDate.now()
-    // 현재 년, 월, 일을 20240323 이런식으로 출력해줌
-    val savedDate = currentTime.format(BASIC_ISO_DATE)
+    val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     fun addTodoInList() {
+        // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
         if (text.isNotBlank()) {
-            todoList.add(text)
             // db에 추가할 객체 생성
             val newTodo = Todo(todo = text, date = savedDate)
             // 위에서 생성한 객체 db에 추가
@@ -172,4 +181,11 @@ fun AddTodo(
     IconButtons(icon = Icons.Rounded.Check, color = Color.Blue) {
         addTodoInList()
     }
+}
+
+fun currentTimeFormat(): String {
+    val currentTime = LocalDate.now()
+    // 현재 년, 월, 일을 20240323 이런식으로 출력
+    return currentTime.format(BASIC_ISO_DATE)
+
 }

@@ -14,28 +14,40 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.developanything.room.RoomDB
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 // 전체 화면 틀 구성
 @Composable
 fun TodoListScreen() {
-    val todoList = remember { mutableStateListOf<String>() }
-    val checkedRemoveIndices = remember { mutableStateListOf<Int>() }
+    // 기존의 리스트의 인덱스 값을 저장해 그 인덱스에 해당하는 값을 제거하는 방식에서 uid 값을 받아 그 uid를 가진 행을 지우는 방식으로 변경
+    val checkedRemoveUids = remember { mutableStateListOf<Int>() }
     // 추가 버튼을 눌렀을 때 TextField를 나타나게 하기 위함
     var clickAdd by remember { mutableStateOf(false) }
     var clickDelete by remember { mutableStateOf(false) }
     val focusToTextField = remember { FocusRequester() }
+
+    val currentDate = currentTimeFormat()
+    val context = LocalContext.current
+    val todoList by RoomDB.getInstance(context).getTodo().collectAsState(initial = emptyList())
+    val filteredList = todoList.filter { it.date == currentDate }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(clickAdd) {
         if (clickAdd) {
@@ -46,16 +58,21 @@ fun TodoListScreen() {
     fun handleAddClick() {
         clickAdd = true
         clickDelete = false
-        checkedRemoveIndices.clear()
+        checkedRemoveUids.clear()
     }
 
     fun handleDeleteClick() {
-        if (todoList.isNotEmpty()) {
+        if (filteredList.isNotEmpty()) {
             clickDelete = !clickDelete
         }
         if (!clickDelete) {
-            checkedRemoveIndices.sortedDescending().forEach { todoList.removeAt(it) }
-            checkedRemoveIndices.clear()
+            scope.launch(Dispatchers.IO) {
+                checkedRemoveUids.forEach { uid ->
+                    val selectedTodo = filteredList.find { it.uid == uid }!!
+                    RoomDB.getInstance(context).deleteTodo(selectedTodo)
+                }
+                checkedRemoveUids.clear()
+            }
         }
     }
 
@@ -71,12 +88,11 @@ fun TodoListScreen() {
         Partition()
 
         TodoList(
-            todoList,
             clickAdd,
             setClickAdd = { clickAdd = it },
             focusToTextField,
             clickDelete,
-            checkedRemoveIndices
+            checkedRemoveUids
         )
     }
 }
@@ -124,38 +140,41 @@ private fun Partition() {
 
 @Composable
 private fun TodoList(
-    todoList: MutableList<String>,
     clickAdd: Boolean,
     setClickAdd: (Boolean) -> Unit,
     focusToTextField: FocusRequester,
     clickDelete: Boolean,
-    checkedRemoveIndices: MutableList<Int>
+    checkedRemoveUids: MutableList<Int>
 ) {
+    val currentDate = currentTimeFormat()
+    val context = LocalContext.current
+    // 코루틴 이용하니깐 db가 바뀌는 게 화면에서 바로바로 확인 가능
+    val todoList by RoomDB.getInstance(context).getTodo().collectAsState(initial = emptyList())
+    val filteredList = todoList.filter { it.date == currentDate }
+
     Row {
         if (clickDelete) {
             LazyColumn {
-                items(todoList.size) {
+                itemsIndexed(filteredList) { _, todo ->
                     ListContainer {
                         TodoWithCheckbox(
-                            text = null,
+                            todo = todo,
                             clickDelete = clickDelete,
                             checkCondition = clickDelete,
-                            checkedRemoveIndices = checkedRemoveIndices,
-                            index = it
+                            checkedRemoveUids = checkedRemoveUids
                         )
                     }
                 }
             }
         }
         LazyColumn {
-            itemsIndexed(todoList) { index, todo ->
+            itemsIndexed(filteredList) { _, todo ->
                 ListContainer {
                     TodoWithCheckbox(
-                        text = todo,
+                        todo = todo,
                         clickDelete = clickDelete,
                         checkCondition = !clickDelete,
-                        checkedRemoveIndices = checkedRemoveIndices,
-                        index = index
+                        checkedRemoveUids = checkedRemoveUids
                     )
                 }
             }
@@ -163,7 +182,6 @@ private fun TodoList(
                 item {
                     ListContainer {
                         AddTodo(
-                            todoList = todoList,
                             setClickAdd = setClickAdd,
                             focusToTextField = focusToTextField
                         )

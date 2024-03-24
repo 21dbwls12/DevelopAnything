@@ -79,7 +79,6 @@ dependencies {
     // To use Kotlin Symbol Processing (KSP)
     // ksp 사용하려면 따로 프로젝트 수준의 그래들에 추가해야함
     ksp("androidx.room:room-compiler:$room_version")
-//
-//    // optional - Kotlin Extensions and Coroutines support for Room
-//    implementation("androidx.room:room-ktx:$room_version")
+    // 코루틴용 그래들
+    implementation("androidx.room:room-ktx:$room_version")
 }
