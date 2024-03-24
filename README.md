@@ -12,6 +12,7 @@ Live 프로젝트 관리 훈련
 ### 문제 설명
 
  <p>todo list를 db에서 관리해보세요.</p>
+ <p>기존 프로젝트에 git을 활용하시고, 변경사항을 어떻게 공유할지도 한 번 고민해서 올려주세요.</p>
 
 ### 조건
 
@@ -45,6 +46,8 @@ dependencies {
 ### 피드백
 
 ### 사진
+
+https://github.com/21dbwls12/DevelopAnything/assets/139525941/3350bc47-a7ef-45b2-a1a2-b4c16536e9ba
 
 ----------------------
 ## 안드로이드 Todo List
