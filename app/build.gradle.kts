@@ -74,7 +74,8 @@ dependencies {
     val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
+    // 오 이거 안해도 실행된다! 필수로 쓰고 ksp가 부가인줄 알았는데 아니구나(피드백 받음)
+//    annotationProcessor("androidx.room:room-compiler:$room_version")
 
     // To use Kotlin Symbol Processing (KSP)
     // ksp 사용하려면 따로 프로젝트 수준의 그래들에 추가해야함
