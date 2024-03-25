@@ -1,6 +1,6 @@
 # 안드로이드
 
-## 안드로이드 Todo List 이어서
+## Todo List 로컬 DB연동
 
 ### 목적
 Live 프로젝트 관리 훈련
@@ -50,7 +50,7 @@ dependencies {
 https://github.com/21dbwls12/DevelopAnything/assets/139525941/3350bc47-a7ef-45b2-a1a2-b4c16536e9ba
 
 ----------------------
-## 안드로이드 Todo List
+## Todo List
 
 ### 목적
 앱 기능 구현
