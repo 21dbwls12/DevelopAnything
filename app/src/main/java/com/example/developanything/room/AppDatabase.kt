@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Todo::class], version = 4)
+@Database(entities = [Todo::class], version = 5)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoDao() : TodoDao
 }
@@ -32,5 +32,10 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("INSERT INTO Todo_new (uid, todo, isFinished, date) SELECT uid, todo, isFinished, date FROM todo")
         db.execSQL("DROP TABLE Todo")
         db.execSQL("ALTER TABLE Todo_new RENAME TO Todo")
+    }
+}
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE Todo ADD COLUMN memo TEXT")
     }
 }

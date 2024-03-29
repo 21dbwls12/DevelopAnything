@@ -14,4 +14,6 @@ data class Todo(
     @ColumnInfo(name = "isFinished") var isFinished: Boolean? = false,
     // 날짜별로 저장
     @ColumnInfo(name = "date") val date: String,
+    // 메모
+    @ColumnInfo(name = "memo") val memo: String?,
 )

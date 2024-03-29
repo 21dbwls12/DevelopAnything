@@ -3,11 +3,13 @@ package com.example.developanything.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.developanything.room.RoomDB
@@ -96,39 +99,55 @@ fun TodoWithCheckbox(
     }
     // 기존에 text를 따로 받아오던 것도 위의 checked와 같은 오류가 생김 (clickDelete가 true가 되면 빨간색 체크 박스에만 없어야하는데 원래 화면에 있던 text가 같이 사라짐)
     var text by remember { mutableStateOf("") }
+    var memo by remember { mutableStateOf("") }
     if (!clickDelete) {
         text = todo.todo
+        memo = todo.memo ?: ""
     }
 
-    Checkbox(
-        checked = checked,
-        onCheckedChange = { isChecked ->
-            checked = isChecked
-            // 체크 박스 눌렀을 때 db에 있는 Boolean 값이 바뀌도록 설정
-            if (!clickDelete) {
-                scope.launch(Dispatchers.IO) {
-                    todo.isFinished = isChecked
-                    RoomDB.getInstance(context).updateTodo(todo)
-                }
-            }
-            if (clickDelete && isChecked) {
-                checkedRemoveUids.add(todo.uid)
-            } else {
-                checkedRemoveUids.remove(todo.uid)
-            }
-        },
-        colors = CheckboxDefaults.colors(
-            uncheckedColor = if (clickDelete) Color.Red else Color(0xFF024959),
-            checkedColor = if (clickDelete) Color.Red else Color(0xFF024959),
-            checkmarkColor = Color.White
-        ),
-        enabled = checkCondition
-    )
-    Text(
-        text = text,
-        // text 취소선(체크박스를 눌렀을 때만)
-        textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None
-    )
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = { isChecked ->
+                    checked = isChecked
+                    // 체크 박스 눌렀을 때 db에 있는 Boolean 값이 바뀌도록 설정
+                    if (!clickDelete) {
+                        scope.launch(Dispatchers.IO) {
+                            todo.isFinished = isChecked
+                            RoomDB.getInstance(context).updateTodo(todo)
+                        }
+                    }
+                    if (clickDelete && isChecked) {
+                        checkedRemoveUids.add(todo.uid)
+                    } else {
+                        checkedRemoveUids.remove(todo.uid)
+                    }
+                },
+                colors = CheckboxDefaults.colors(
+                    uncheckedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+                    checkedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+                    checkmarkColor = Color.White
+                ),
+                enabled = checkCondition
+            )
+            Text(
+                text = text,
+                // text 취소선(체크박스를 눌렀을 때만)
+                textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None
+            )
+        }
+        if (memo.isNotBlank()) {
+            Text(
+                text = memo,
+                // text 취소선(체크박스를 눌렀을 때만)
+                textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
+                modifier = Modifier.padding(start = 48.dp)
+            )
+        }
+    }
 }
 
 @Composable
@@ -137,6 +156,7 @@ fun AddTodo(
     focusToTextField: FocusRequester
 ) {
     var text by remember { mutableStateOf("") }
+    var memo by remember { mutableStateOf("") }
     val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -145,41 +165,63 @@ fun AddTodo(
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
         if (text.isNotBlank()) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate)
+            val newTodo = Todo(todo = text, date = savedDate, memo = memo)
             // 위에서 생성한 객체 db에 추가
             scope.launch(Dispatchers.IO) {
                 RoomDB.getInstance(context).insertTodo(newTodo)
             }
             text = ""
+            memo  = ""
             setClickAdd(false)
         }
     }
 
-    TextField(
-        value = text,
-        onValueChange = { text = it },
-        shape = RoundedCornerShape(15.dp),
-        colors = TextFieldDefaults.colors(
-            unfocusedIndicatorColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            unfocusedTextColor = Color.Black,
-            cursorColor = Color(0xFF024959),
-            focusedIndicatorColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            focusedTextColor = Color.Black,
-        ),
-        // 엔터키 사용하기 위한 설정
-        singleLine = true,
-        // text underline 제거
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        // 엔터키 누르면 밑의 check 아이콘 버튼 누른 것과 동일한 기능
-        keyboardActions = KeyboardActions(onDone = { addTodoInList() }),
-        modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .focusRequester(focusToTextField)
-    )
-    IconButtons(icon = Icons.Rounded.Check, color = Color.Blue) {
-        addTodoInList()
+    Column {
+        Row {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                shape = RoundedCornerShape(15.dp),
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color(0xFF024959),
+                    focusedIndicatorColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    focusedTextColor = Color.Black,
+                ),
+                // 엔터키 사용하기 위한 설정
+                singleLine = true,
+                // text underline 제거
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                // 엔터키 누르면 밑의 check 아이콘 버튼 누른 것과 동일한 기능
+                keyboardActions = KeyboardActions(onDone = { addTodoInList() }),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .focusRequester(focusToTextField)
+                    .padding(0.dp)
+            )
+            IconButtons(icon = Icons.Rounded.Check, color = Color.Blue) {
+                addTodoInList()
+            }
+        }
+        TextField(
+            value = memo,
+            onValueChange = { memo = it },
+            shape = RoundedCornerShape(15.dp),
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color(0xFF024959),
+                focusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                focusedTextColor = Color.Black,
+            ),
+            placeholder = { Text(text = "메모") },
+            modifier = Modifier.padding(0.dp)
+        )
     }
 }
 
