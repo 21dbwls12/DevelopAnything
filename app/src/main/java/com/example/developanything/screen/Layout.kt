@@ -136,11 +136,6 @@ fun TodoWithCheckbox(
                         RoomDB.getInstance(context).updateTodo(todo)
                     }
                 }
-//                if (clickDelete && isChecked) {
-//                    checkedRemoveUids.add(todo.uid)
-//                } else {
-//                    checkedRemoveUids.remove(todo.uid)
-//                }
             },
             colors = CheckboxDefaults.colors(
                 uncheckedColor = Color(0xFF024959),
