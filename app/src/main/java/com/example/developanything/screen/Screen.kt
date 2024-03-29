@@ -147,20 +147,6 @@ private fun TodoList(
     val filteredList = RoomDB.getInstance(context).getTodoList()
 
     Row {
-        if (clickDelete) {
-            LazyColumn {
-                itemsIndexed(filteredList) { _, todo ->
-                    ListContainer {
-                        TodoWithCheckbox(
-                            todo = todo,
-                            clickDelete = clickDelete,
-                            checkCondition = clickDelete,
-                            checkedRemoveUids = checkedRemoveUids
-                        )
-                    }
-                }
-            }
-        }
         LazyColumn {
             itemsIndexed(filteredList) { _, todo ->
                 ListContainer {

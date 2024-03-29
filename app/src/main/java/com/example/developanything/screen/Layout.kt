@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.developanything.room.RoomDB
@@ -105,47 +103,66 @@ fun TodoWithCheckbox(
         memo = todo.memo ?: ""
     }
 
-    Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    Row(
+        verticalAlignment = Alignment.Top,
+    ) {
+        if (clickDelete) {
             Checkbox(
                 checked = checked,
                 onCheckedChange = { isChecked ->
                     checked = isChecked
-                    // 체크 박스 눌렀을 때 db에 있는 Boolean 값이 바뀌도록 설정
-                    if (!clickDelete) {
-                        scope.launch(Dispatchers.IO) {
-                            todo.isFinished = isChecked
-                            RoomDB.getInstance(context).updateTodo(todo)
-                        }
-                    }
-                    if (clickDelete && isChecked) {
+                    if (isChecked) {
                         checkedRemoveUids.add(todo.uid)
                     } else {
                         checkedRemoveUids.remove(todo.uid)
                     }
                 },
                 colors = CheckboxDefaults.colors(
-                    uncheckedColor = if (clickDelete) Color.Red else Color(0xFF024959),
-                    checkedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+                    uncheckedColor = Color.Red,
+                    checkedColor = Color.Red,
                     checkmarkColor = Color.White
-                ),
-                enabled = checkCondition
+                )
             )
+        }
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { isChecked ->
+                checked = isChecked
+                // 체크 박스 눌렀을 때 db에 있는 Boolean 값이 바뀌도록 설정
+                if (!clickDelete) {
+                    scope.launch(Dispatchers.IO) {
+                        todo.isFinished = isChecked
+                        RoomDB.getInstance(context).updateTodo(todo)
+                    }
+                }
+                if (clickDelete && isChecked) {
+                    checkedRemoveUids.add(todo.uid)
+                } else {
+                    checkedRemoveUids.remove(todo.uid)
+                }
+            },
+            colors = CheckboxDefaults.colors(
+                uncheckedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+                checkedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+                checkmarkColor = Color.White
+            ),
+            enabled = checkCondition
+        )
+        Column(
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
             Text(
                 text = text,
                 // text 취소선(체크박스를 눌렀을 때만)
                 textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None
             )
-        }
-        if (memo.isNotBlank()) {
-            Text(
-                text = memo,
-                // text 취소선(체크박스를 눌렀을 때만)
-                textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
-                modifier = Modifier.padding(start = 48.dp)
-            )
+            if (memo.isNotBlank()) {
+                Text(
+                    text = memo,
+                    // text 취소선(체크박스를 눌렀을 때만)
+                    textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
+                )
+            }
         }
     }
 }
@@ -171,7 +188,7 @@ fun AddTodo(
                 RoomDB.getInstance(context).insertTodo(newTodo)
             }
             text = ""
-            memo  = ""
+            memo = ""
             setClickAdd(false)
         }
     }
@@ -220,7 +237,7 @@ fun AddTodo(
                 focusedTextColor = Color.Black,
             ),
             placeholder = { Text(text = "메모") },
-            modifier = Modifier.padding(0.dp)
+            modifier = Modifier.padding(0.dp),
         )
     }
 }
