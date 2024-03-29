@@ -95,6 +95,7 @@ fun TodoWithCheckbox(
     if (!clickDelete) {
         checked = todo.isFinished ?: false
     }
+    var checkedDelete by remember { mutableStateOf(false) }
     // 기존에 text를 따로 받아오던 것도 위의 checked와 같은 오류가 생김 (clickDelete가 true가 되면 빨간색 체크 박스에만 없어야하는데 원래 화면에 있던 text가 같이 사라짐)
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
@@ -108,9 +109,9 @@ fun TodoWithCheckbox(
     ) {
         if (clickDelete) {
             Checkbox(
-                checked = checked,
+                checked = checkedDelete,
                 onCheckedChange = { isChecked ->
-                    checked = isChecked
+                    checkedDelete = isChecked
                     if (isChecked) {
                         checkedRemoveUids.add(todo.uid)
                     } else {
@@ -135,15 +136,15 @@ fun TodoWithCheckbox(
                         RoomDB.getInstance(context).updateTodo(todo)
                     }
                 }
-                if (clickDelete && isChecked) {
-                    checkedRemoveUids.add(todo.uid)
-                } else {
-                    checkedRemoveUids.remove(todo.uid)
-                }
+//                if (clickDelete && isChecked) {
+//                    checkedRemoveUids.add(todo.uid)
+//                } else {
+//                    checkedRemoveUids.remove(todo.uid)
+//                }
             },
             colors = CheckboxDefaults.colors(
-                uncheckedColor = if (clickDelete) Color.Red else Color(0xFF024959),
-                checkedColor = if (clickDelete) Color.Red else Color(0xFF024959),
+                uncheckedColor = Color(0xFF024959),
+                checkedColor = Color(0xFF024959),
                 checkmarkColor = Color.White
             ),
             enabled = checkCondition
