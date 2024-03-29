@@ -1,5 +1,32 @@
 # 안드로이드
 
+## Todo List 세부내용 추가
+
+### 목적
+기능 추가에 따른 DB migration 연습, github PR 등록 연습
+
+### 제출 일자
+
+2024년 3월 30일 04:40:28
+
+### 문제 설명
+
+ <p>todo list에 세부정보를 입력할 수 있도록 해주세요.</p>
+ <p>세부정보 입력은 사용자 선택사항입니다.</p>
+ <p>기존 하위호환 고려해서 동작하도록 해주세요.</p>
+
+### 조건
+
+ <p>구현 변경사항을 main branch에 바로 커밋하지마시고 별도의 branch를 만들어 PR(Pull Request)로 등록</p>
+
+### 피드백
+
+### 사진
+
+https://github.com/21dbwls12/DevelopAnything/assets/139525941/5d5f6e5d-a479-4c4f-9fcb-88fb0e591cd4
+
+----------------------
+
 ## Todo List 로컬 DB연동
 
 ### 목적
