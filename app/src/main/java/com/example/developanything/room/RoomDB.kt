@@ -37,7 +37,7 @@ class RoomDB private constructor(context: Context) {
         val currentDateFormat = LocalDate.now()
         // 코루틴 이용하니깐 db가 바뀌는 게 화면에서 바로바로 확인 가능
         return (todoDao.getAll().collectAsState(initial = emptyList()).value).filter {
-            val finishDate = it.finishDate?.let { finishDate -> stringToDate(finishDate) }
+            val finishDate = if (it.finishDate.isNullOrBlank()) null else stringToDate(it.finishDate)
             // 저장된 finishDate의 날짜까지 화면에 할일 계속 보여주기
             currentDateFormat.isEqual(stringToDate(it.date)) || (finishDate!= null && currentDateFormat.isBefore(finishDate))
         }
