@@ -170,6 +170,7 @@ fun AddTodo(
 ) {
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
+    var finishDate by remember { mutableStateOf("") }
     val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -219,28 +220,46 @@ fun AddTodo(
                 addTodoInList()
             }
         }
-        TextField(
+        AddTextField(
             value = memo,
-            onValueChange = { memo = it },
-            shape = RoundedCornerShape(15.dp),
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                cursorColor = Color(0xFF024959),
-                focusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.Black,
-            ),
-            placeholder = { Text(text = "메모") },
-            modifier = Modifier.padding(0.dp),
-        )
+            onValueChange = { memo = it }
+        ) {
+            Text(text = "메모")
+        }
+        AddTextField(
+            value = finishDate,
+            onValueChange = { finishDate = it }
+        ) {
+            Text(text = "마감일자(20240407)")
+        }
     }
 }
 
+@Composable
+fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @Composable() (() -> Unit)) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        shape = RoundedCornerShape(15.dp),
+        colors = TextFieldDefaults.colors(
+            unfocusedIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.Black,
+            cursorColor = Color(0xFF024959),
+            focusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            focusedTextColor = Color.Black,
+        ),
+        placeholder = placeholder,
+        modifier = Modifier.padding(0.dp),
+    )
+}
+
+
+
 fun currentTimeFormat(): String {
-    val currentTime = LocalDate.now()
+    val currentDate = LocalDate.now()
     // 현재 년, 월, 일을 20240323 이런식으로 출력
-    return currentTime.format(BASIC_ISO_DATE)
+    return currentDate.format(BASIC_ISO_DATE)
 
 }

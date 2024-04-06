@@ -99,9 +99,9 @@ private fun TopBar(
     setClickAdd: () -> Unit,
     setClickDelete: () -> Unit,
 ) {
-    val currentTime = LocalDate.now()
+    val currentDate = LocalDate.now()
     // 날짜
-    val date = currentTime.dayOfMonth
+    val date = currentDate.dayOfMonth
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
