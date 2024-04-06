@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.example.developanything.room.RoomDB
 import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
@@ -177,9 +178,9 @@ fun AddTodo(
 
     fun addTodoInList() {
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
-        if (text.isNotBlank()) {
+        if (text.isNotBlank() && finishDate.length == 8 && finishDate.isDigitsOnly()) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate, memo = memo)
+            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate)
             // 위에서 생성한 객체 db에 추가
             scope.launch(Dispatchers.IO) {
                 RoomDB.getInstance(context).insertTodo(newTodo)
