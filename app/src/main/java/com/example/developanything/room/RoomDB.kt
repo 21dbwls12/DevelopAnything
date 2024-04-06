@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.room.Room
-import com.example.developanything.screen.currentTimeFormat
+import com.example.developanything.screen.stringToDate
+import java.time.LocalDate
 
 // Room 데이터베이스를 사용하기 위한 class
 // 현재 파일에서 함수들로 다 구분되어있고 파일도 2개라 db를 scope마다 계속 선언해주는 것보다 class에서 관리하는 게 더 나을 것 같다고 생각되어 class 선언
@@ -33,16 +34,23 @@ class RoomDB private constructor(context: Context) {
 
     @Composable
     fun getTodoList(): List<Todo> {
-        val currentDate = currentTimeFormat()
+        val currentDateFormat = LocalDate.now()
         // 코루틴 이용하니깐 db가 바뀌는 게 화면에서 바로바로 확인 가능
-        return (todoDao.getAll().collectAsState(initial = emptyList()).value).filter { it.date == currentDate}
+        return (todoDao.getAll().collectAsState(initial = emptyList()).value).filter {
+            val finishDate = it.finishDate?.let { finishDate -> stringToDate(finishDate) }
+            // 저장된 finishDate의 날짜까지 화면에 할일 계속 보여주기
+            currentDateFormat.isEqual(stringToDate(it.date)) || (finishDate!= null && currentDateFormat.isBefore(finishDate))
+        }
     }
+
     fun insertTodo(newTodo: Todo) {
         todoDao.insertAll(newTodo)
     }
+
     fun deleteTodo(selectedTodo: Todo) {
         todoDao.delete(selectedTodo)
     }
+
     fun updateTodo(selectedTodo: Todo) {
         todoDao.updateUsers(selectedTodo)
     }

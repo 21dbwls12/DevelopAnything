@@ -100,9 +100,11 @@ fun TodoWithCheckbox(
     // 기존에 text를 따로 받아오던 것도 위의 checked와 같은 오류가 생김 (clickDelete가 true가 되면 빨간색 체크 박스에만 없어야하는데 원래 화면에 있던 text가 같이 사라짐)
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
+    var finishDate by remember { mutableStateOf("") }
     if (!clickDelete) {
         text = todo.todo
         memo = todo.memo ?: ""
+        finishDate = todo.finishDate ?: ""
     }
 
     Row(
@@ -156,6 +158,13 @@ fun TodoWithCheckbox(
             if (memo.isNotBlank()) {
                 Text(
                     text = memo,
+                    // text 취소선(체크박스를 눌렀을 때만)
+                    textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
+                )
+            }
+            if (finishDate.isNotBlank()) {
+                Text(
+                    text = finishDate,
                     // text 취소선(체크박스를 눌렀을 때만)
                     textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
                 )
@@ -237,7 +246,7 @@ fun AddTodo(
 }
 
 @Composable
-fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @Composable() (() -> Unit)) {
+fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @Composable (() -> Unit)) {
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -258,9 +267,12 @@ fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @C
 
 
 
-fun currentTimeFormat(): String {
+private fun currentTimeFormat(): String {
     val currentDate = LocalDate.now()
     // 현재 년, 월, 일을 20240323 이런식으로 출력
     return currentDate.format(BASIC_ISO_DATE)
+}
 
+fun stringToDate(date: String): LocalDate {
+    return LocalDate.parse(date, BASIC_ISO_DATE)
 }
