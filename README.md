@@ -1,6 +1,6 @@
 # 안드로이드
 
-## Todo List 완료 기한 입력 및 표시
+## [Todo List 완료 기한 입력 및 표시](https://github.com/21dbwls12/DevelopAnything/pull/2)
 
 ### 목적
 db migration 연습. PR 연습. 비슷한 형태의 기능 추가가 반복 되는 경우 코드 패턴 설계/일반화 고민
