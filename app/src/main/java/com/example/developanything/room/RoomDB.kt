@@ -18,7 +18,7 @@ class RoomDB private constructor(context: Context) {
         context,
         AppDatabase::class.java, "todo.db"
     ).addMigrations(
-        MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6
+        MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7
     ).build()
 
     private val todoDao = db.todoDao()
@@ -40,7 +40,7 @@ class RoomDB private constructor(context: Context) {
             val finishDate = if (it.finishDate.isNullOrBlank()) null else stringToDate(it.finishDate)
             // 저장된 finishDate의 날짜까지 화면에 할일 계속 보여주기
             currentDateFormat.isEqual(stringToDate(it.date)) || (finishDate!= null && currentDateFormat.isBefore(finishDate))
-        }
+        }.sortedBy { it.priority }
     }
 
     fun insertTodo(newTodo: Todo) {

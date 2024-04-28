@@ -82,4 +82,5 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
     // 코루틴용 그래들
     implementation("androidx.room:room-ktx:$room_version")
+    implementation("org.burnoutcrew.composereorderable:reorderable-android:0.7.4")
 }

@@ -1,8 +1,8 @@
 package com.example.developanything.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,12 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.text.isDigitsOnly
+import com.example.developanything.reorderable.ReorderableState
 import com.example.developanything.room.RoomDB
 import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
@@ -68,16 +72,54 @@ fun PartitionLine() {
     )
 }
 
-
 @Composable
-fun ListContainer(content: @Composable () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+fun ListContainer(
+    modifier: Modifier = Modifier,
+    state: ReorderableState<*>,
+    key: Any?,
+    index: Int? = null,
+    defaultDraggingModifier: Modifier = Modifier,
+    content: @Composable BoxScope.(isDragging: Boolean) -> Unit
+) {
+    val isDragging = if (index != null) {
+        index == state.draggingItemIndex
+    } else {
+        key == state.draggingItemKey
+    }
+    val draggingModifier =
+        if (isDragging) {
+            Modifier
+                .zIndex(1f)
+                .graphicsLayer {
+                    translationX = if (!state.isVerticalScroll) state.draggingItemLeft else 0f
+                    translationY = if (state.isVerticalScroll) state.draggingItemTop else 0f
+                }
+        } else {
+            val cancel = if (index != null) {
+                index == state.dragCancelledAnimation.position?.index
+            } else {
+                key == state.dragCancelledAnimation.position?.key
+            }
+            if (cancel) {
+                Modifier
+                    .zIndex(1f)
+                    .graphicsLayer {
+                        translationX =
+                            if (!state.isVerticalScroll) state.dragCancelledAnimation.offset.x else 0f
+                        translationY =
+                            if (state.isVerticalScroll) state.dragCancelledAnimation.offset.y else 0f
+                    }
+            } else {
+                defaultDraggingModifier
+            }
+        }
+
+    Box(
+        modifier = modifier
+            .then(draggingModifier)
             .padding(start = 5.dp, end = 5.dp)
     ) {
-        content()
+        content(isDragging)
     }
 }
 
@@ -176,11 +218,13 @@ fun TodoWithCheckbox(
 @Composable
 fun AddTodo(
     setClickAdd: (Boolean) -> Unit,
-    focusToTextField: FocusRequester
+    focusToTextField: FocusRequester,
+    todoCount: Int
 ) {
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
     var finishDate by remember { mutableStateOf("") }
+    var priority by remember { mutableIntStateOf(todoCount + 1) }
     val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -189,7 +233,7 @@ fun AddTodo(
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
         if (text.isNotBlank() && (finishDate.isBlank() || (finishDate.length == 8 && finishDate.isDigitsOnly()))) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate)
+            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate, priority = priority)
             // 위에서 생성한 객체 db에 추가
             scope.launch(Dispatchers.IO) {
                 RoomDB.getInstance(context).insertTodo(newTodo)

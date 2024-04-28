@@ -1,5 +1,7 @@
 package com.example.developanything.screen
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Add
@@ -22,14 +24,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.developanything.reorderable.ItemPosition
+import com.example.developanything.reorderable.detectReorderAfterLongPress
+import com.example.developanything.reorderable.rememberReorderableLazyListState
 import com.example.developanything.room.RoomDB
+import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import java.time.LocalDate
 
 // 전체 화면 틀 구성
@@ -135,6 +143,7 @@ private fun Partition() {
     SpaceForPartition()
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TodoList(
     clickAdd: Boolean,
@@ -144,25 +153,67 @@ private fun TodoList(
     checkedRemoveUids: MutableList<Int>
 ) {
     val context = LocalContext.current
-    val filteredList = RoomDB.getInstance(context).getTodoList()
+    var filteredList = RoomDB.getInstance(context).getTodoList()
+    var sortedList by remember {
+        mutableStateOf(filteredList)
+    }
+    val todoCount = RoomDB.getInstance(context).getTodoList().size
+
+    fun moveDog(from: ItemPosition, to: ItemPosition) {
+        filteredList = filteredList.toMutableList().apply {
+            add(to.index, removeAt(from.index))
+        }
+    }
+
+    fun isDogDragEnabled(draggedOver: ItemPosition, dragging: ItemPosition): Boolean {
+        return !clickAdd && !clickDelete
+    }
+
+    val state =
+        rememberReorderableLazyListState(onMove = ::moveDog, canDragOver = ::isDogDragEnabled)
 
     LazyColumn {
-        itemsIndexed(filteredList) { _, todo ->
-            ListContainer {
-                TodoWithCheckbox(
-                    todo = todo,
-                    clickDelete = clickDelete,
-                    checkCondition = !clickDelete,
-                    checkedRemoveUids = checkedRemoveUids
+        items(filteredList) { todo ->
+            ListContainer(
+                modifier = Modifier,
+                state,
+                key = { item: Todo -> item.priority }) { dragging ->
+                val elevation = animateDpAsState(
+                    targetValue = if (dragging) 5.dp else 0.dp,
+                    label = ""
                 )
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = if (!clickAdd && !clickDelete) {
+                        Modifier
+                            .detectReorderAfterLongPress(state)
+                    } else {
+                        Modifier
+                    }
+                        .shadow(elevation.value)
+                        .fillMaxWidth()
+                ) {
+                    TodoWithCheckbox(
+                        todo = todo,
+                        clickDelete = clickDelete,
+                        checkCondition = !clickDelete,
+                        checkedRemoveUids = checkedRemoveUids
+                    )
+                }
             }
         }
         if (clickAdd) {
             item {
-                ListContainer {
+                ListContainer(
+                    modifier = Modifier,
+                    state = state,
+                    key = { item: Todo -> item.priority }) {
                     AddTodo(
                         setClickAdd = setClickAdd,
-                        focusToTextField = focusToTextField
+                        focusToTextField = focusToTextField,
+                        todoCount = todoCount
                     )
                 }
             }
