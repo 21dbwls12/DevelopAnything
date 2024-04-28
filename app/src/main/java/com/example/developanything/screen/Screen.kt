@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,10 +53,14 @@ fun TodoListScreen() {
         }
     }
 
-    fun handleAddClick() {
-        clickAdd = true
-        clickDelete = false
-        checkedRemoveUids.clear()
+    fun handleAddClick(isClicked: Boolean) {
+        if (isClicked) {
+            clickAdd = true
+            clickDelete = false
+            checkedRemoveUids.clear()
+        } else {
+            clickAdd = false
+        }
     }
 
     fun handleDeleteClick() {
@@ -78,8 +83,9 @@ fun TodoListScreen() {
     ) {
         // clickAdd의 상태를 다른 스코프에서도 변경할 수 있음
         TopBar(
-            setClickAdd = ::handleAddClick,
+            setClickAdd = { handleAddClick(it) },
             setClickDelete = ::handleDeleteClick,
+            clickAdd = clickAdd
         )
 
         Partition()
@@ -96,8 +102,9 @@ fun TodoListScreen() {
 
 @Composable
 private fun TopBar(
-    setClickAdd: () -> Unit,
+    setClickAdd: (Boolean) -> Unit,
     setClickDelete: () -> Unit,
+    clickAdd: Boolean
 ) {
     val currentDate = LocalDate.now()
     // 날짜
@@ -118,13 +125,23 @@ private fun TopBar(
             }
         )
         Text(text = date.toString(), color = Color(0xFFF2C12E), fontSize = 40.sp)
-        IconButtons(
-            icon = Icons.Rounded.Add,
-            color = Color.Blue,
-            onClick = {
-                setClickAdd()
-            }
-        )
+        if (!clickAdd) {
+            IconButtons(
+                icon = Icons.Rounded.Add,
+                color = Color.Blue,
+                onClick = {
+                    setClickAdd(true)
+                }
+            )
+        } else {
+            IconButtons(
+                icon = Icons.Rounded.Close,
+                color = Color.Red,
+                onClick = {
+                    setClickAdd(false)
+                }
+            )
+        }
     }
 }
 
@@ -145,6 +162,7 @@ private fun TodoList(
 ) {
     val context = LocalContext.current
     val filteredList = RoomDB.getInstance(context).getTodoList()
+    val todoCount = RoomDB.getInstance(context).getTodoList().size
 
     LazyColumn {
         itemsIndexed(filteredList) { _, todo ->
@@ -162,7 +180,8 @@ private fun TodoList(
                 ListContainer {
                     AddTodo(
                         setClickAdd = setClickAdd,
-                        focusToTextField = focusToTextField
+                        focusToTextField = focusToTextField,
+                        todoCount = todoCount
                     )
                 }
             }

@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -147,6 +148,7 @@ fun TodoWithCheckbox(
             ),
             enabled = checkCondition
         )
+        Text(text = todo.priority.toString(), color = Color(0xFFF2C12E), modifier = Modifier.padding(top = 12.dp, end = 12.dp))
         Column(
             modifier = Modifier.padding(top = 12.dp)
         ) {
@@ -176,11 +178,13 @@ fun TodoWithCheckbox(
 @Composable
 fun AddTodo(
     setClickAdd: (Boolean) -> Unit,
-    focusToTextField: FocusRequester
+    focusToTextField: FocusRequester,
+    todoCount: Int
 ) {
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
     var finishDate by remember { mutableStateOf("") }
+    val priority by remember { mutableIntStateOf(todoCount + 1) }
     val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -189,7 +193,7 @@ fun AddTodo(
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
         if (text.isNotBlank() && (finishDate.isBlank() || (finishDate.length == 8 && finishDate.isDigitsOnly()))) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate)
+            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate, priority = priority)
             // 위에서 생성한 객체 db에 추가
             scope.launch(Dispatchers.IO) {
                 RoomDB.getInstance(context).insertTodo(newTodo)
