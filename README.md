@@ -17,8 +17,7 @@
 
 ### 사진
 
-![todoListEditPriority](https://github.com/21dbwls12/DevelopAnything/assets/139525941/4336eaec-84b1-4d3c-8c58-5e63d5350139)
-
+<img src="https://github.com/21dbwls12/DevelopAnything/assets/139525941/3277f843-2837-46a1-881d-27927850a127" width="30%" height="30%"/>
 
 https://github.com/21dbwls12/DevelopAnything/assets/139525941/233eb69a-df71-41ce-b839-c57bdcf22438
 
