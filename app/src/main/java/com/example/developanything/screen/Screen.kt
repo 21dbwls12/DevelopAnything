@@ -1,9 +1,9 @@
 package com.example.developanything.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,7 +37,7 @@ import java.time.LocalDate
 
 // 전체 화면 틀 구성
 @Composable
-fun TodoListScreen() {
+fun TodoListScreen(modifier: Modifier) {
     // 기존의 리스트의 인덱스 값을 저장해 그 인덱스에 해당하는 값을 제거하는 방식에서 uid 값을 받아 그 uid를 가진 행을 지우는 방식으로 변경
     val checkedRemoveUids = remember { mutableStateListOf<Int>() }
     // 추가 버튼을 눌렀을 때 TextField를 나타나게 하기 위함
@@ -86,7 +86,9 @@ fun TodoListScreen() {
     }
 
     Column(
-        modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+        modifier = Modifier
+            .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+            .fillMaxHeight()
     ) {
         // clickAdd의 상태를 다른 스코프에서도 변경할 수 있음
         TopBar(
@@ -97,9 +99,7 @@ fun TodoListScreen() {
             setClickDelete = ::handleDeleteClick,
             clickAdd = clickAdd,
         )
-
         Partition()
-
         TodoList(
             clickAdd,
             setClickAdd = {
@@ -114,7 +114,8 @@ fun TodoListScreen() {
             focusToTextField,
             clickDelete,
             clickTodo,
-            checkedRemoveUids
+            checkedRemoveUids,
+            modifier
         )
     }
 }
@@ -179,38 +180,39 @@ private fun TodoList(
     focusToTextField: FocusRequester,
     clickDelete: Boolean,
     clickTodo: Todo?,
-    checkedRemoveUids: MutableList<Int>
+    checkedRemoveUids: MutableList<Int>,
+    modifier: Modifier
 ) {
     val context = LocalContext.current
     val filteredList = RoomDB.getInstance(context).GetTodoList()
     val todoCount = RoomDB.getInstance(context).GetTodoList().size
 
-    LazyColumn {
-        items(filteredList) {todo ->
-            ListContainer {
-                TodoWithCheckbox(
-                    todo = todo,
-                    clickDelete = clickDelete,
-                    checkCondition = !clickDelete,
-                    checkedRemoveUids = checkedRemoveUids,
-                    setClickAdd = setClickAdd,
-                    setClickTodo = setClickTodo
-                )
+    Column {
+        LazyColumn(
+            modifier = Modifier.fillMaxHeight(if (clickAdd) 0.65f else 1f)
+        ) {
+            items(filteredList) { todo ->
+                ListContainer {
+                    TodoWithCheckbox(
+                        todo = todo,
+                        clickDelete = clickDelete,
+                        checkCondition = !clickDelete,
+                        checkedRemoveUids = checkedRemoveUids,
+                        setClickAdd = setClickAdd,
+                        setClickTodo = setClickTodo
+                    )
+                }
             }
         }
         if (clickAdd) {
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth().fillParentMaxHeight(0.8f)
-                ) {
-                    ListContainer {
-                        AddTodo(
-                            setClickAdd = setClickAdd,
-                            focusToTextField = focusToTextField,
-                            todoCount = todoCount,
-                            clickTodo = clickTodo
-                        )
-                    }
+            Column {
+                ListContainer {
+                    AddTodo(
+                        setClickAdd = setClickAdd,
+                        focusToTextField = focusToTextField,
+                        todoCount = todoCount,
+                        clickTodo = clickTodo
+                    )
                 }
             }
         }

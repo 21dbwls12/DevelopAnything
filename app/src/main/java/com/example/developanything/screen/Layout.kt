@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Checkbox
@@ -78,6 +82,7 @@ fun ListContainer(content: @Composable () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .padding(start = 5.dp, end = 5.dp)
+            .fillMaxHeight()
     ) {
         content()
     }
@@ -206,6 +211,7 @@ fun AddTodo(
     val filteredTodo = clickTodo?.let { RoomDB.getInstance(context).GetTodo(uid = it.uid) }
     val savedDate = currentTimeFormat()
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     fun addTodoInList() {
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
@@ -221,11 +227,14 @@ fun AddTodo(
                 if (clickTodo.priority != priority) {
                     when (clickTodo.priority < priority) {
                         true -> {
-                            reorderTodo = todayTodo.filter { it.priority > clickTodo.priority && it.priority <= priority }
+                            reorderTodo =
+                                todayTodo.filter { it.priority > clickTodo.priority && it.priority <= priority }
                             isBigger = true
                         }
+
                         else -> {
-                            reorderTodo = todayTodo.filter { it.priority < clickTodo.priority && it.priority >= priority }
+                            reorderTodo =
+                                todayTodo.filter { it.priority < clickTodo.priority && it.priority >= priority }
                             isBigger = false
                         }
                     }
@@ -254,7 +263,11 @@ fun AddTodo(
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .imePadding()
+    ) {
         Row {
             TextField(
                 value = text,
