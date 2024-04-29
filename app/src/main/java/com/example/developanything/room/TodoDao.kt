@@ -16,7 +16,7 @@ interface TodoDao {
     fun insertAll(vararg users: Todo)
 
     @Update
-    fun updateUsers(vararg users: Todo)
+    suspend fun updateUsers(users: Todo)
 
     @Delete
     fun delete(user: Todo)

@@ -33,20 +33,22 @@ class RoomDB private constructor(context: Context) {
     }
 
     @Composable
-    fun getTodoList(): List<Todo> {
+    fun GetTodoList(): List<Todo> {
         val currentDateFormat = LocalDate.now()
         // 코루틴 이용하니깐 db가 바뀌는 게 화면에서 바로바로 확인 가능
         return (todoDao.getAll().collectAsState(initial = emptyList()).value).filter {
-            val finishDate = if (it.finishDate.isNullOrBlank()) null else stringToDate(it.finishDate!!)
+            val finishDate =
+                if (it.finishDate.isNullOrBlank()) null else stringToDate(it.finishDate!!)
             // 저장된 finishDate의 날짜까지 화면에 할일 계속 보여주기
-            currentDateFormat.isEqual(stringToDate(it.date)) || (finishDate!= null && currentDateFormat.isBefore(finishDate))
+            currentDateFormat.isEqual(stringToDate(it.date)) || (finishDate != null && currentDateFormat.isBefore(
+                finishDate
+            ))
         }.sortedBy { it.priority }
     }
 
     @Composable
-    fun getTodo(uid: Int): Todo? {
-        val filteredTodos = (todoDao.getAll().collectAsState(initial = emptyList()).value).filter { it.uid == uid }
-        return if (filteredTodos.isNotEmpty()) filteredTodos[0] else null
+    fun GetTodo(uid: Int): Todo? {
+        return (todoDao.getAll().collectAsState(initial = emptyList()).value).find { it.uid == uid }
     }
 
     fun insertTodo(newTodo: Todo) {
@@ -57,7 +59,22 @@ class RoomDB private constructor(context: Context) {
         todoDao.delete(selectedTodo)
     }
 
-    fun updateTodo(selectedTodo: Todo) {
+    suspend fun updateTodo(selectedTodo: Todo) {
         todoDao.updateUsers(selectedTodo)
+    }
+
+    suspend fun pushPriority(filteredList: List<Todo?>, isBigger: Boolean) {
+        for (todo in filteredList) {
+            if (todo != null) {
+                if (isBigger) {
+                    todo.priority--
+                } else {
+                    todo.priority++
+                }
+            }
+            if (todo != null) {
+                todoDao.updateUsers(todo)
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.developanything.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.rounded.Add
@@ -43,11 +43,11 @@ fun TodoListScreen() {
     // 추가 버튼을 눌렀을 때 TextField를 나타나게 하기 위함
     var clickAdd by remember { mutableStateOf(false) }
     var clickDelete by remember { mutableStateOf(false) }
-    var clickTodo by remember { mutableStateOf<Int?>(null) }
+    var clickTodo by remember { mutableStateOf<Todo?>(null) }
     val focusToTextField = remember { FocusRequester() }
 
     val context = LocalContext.current
-    val filteredList = RoomDB.getInstance(context).getTodoList()
+    val filteredList = RoomDB.getInstance(context).GetTodoList()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(clickAdd) {
@@ -81,8 +81,8 @@ fun TodoListScreen() {
         }
     }
 
-    fun handleTodoClick(todoUid: Int) {
-        clickTodo = todoUid
+    fun handleTodoClick(todo: Todo?) {
+        clickTodo = todo
     }
 
     Column(
@@ -175,15 +175,15 @@ private fun Partition() {
 private fun TodoList(
     clickAdd: Boolean,
     setClickAdd: (Boolean) -> Unit,
-    setClickTodo: (Int?) -> Unit,
+    setClickTodo: (Todo?) -> Unit,
     focusToTextField: FocusRequester,
     clickDelete: Boolean,
-    clickTodo: Int?,
+    clickTodo: Todo?,
     checkedRemoveUids: MutableList<Int>
 ) {
     val context = LocalContext.current
-    val filteredList = RoomDB.getInstance(context).getTodoList()
-    val todoCount = RoomDB.getInstance(context).getTodoList().size
+    val filteredList = RoomDB.getInstance(context).GetTodoList()
+    val todoCount = RoomDB.getInstance(context).GetTodoList().size
 
     LazyColumn {
         items(filteredList) {todo ->
@@ -200,13 +200,17 @@ private fun TodoList(
         }
         if (clickAdd) {
             item {
-                ListContainer {
-                    AddTodo(
-                        setClickAdd = setClickAdd,
-                        focusToTextField = focusToTextField,
-                        todoCount = todoCount,
-                        clickTodo = clickTodo
-                    )
+                Box(
+                    modifier = Modifier.fillMaxWidth().fillParentMaxHeight(0.8f)
+                ) {
+                    ListContainer {
+                        AddTodo(
+                            setClickAdd = setClickAdd,
+                            focusToTextField = focusToTextField,
+                            todoCount = todoCount,
+                            clickTodo = clickTodo
+                        )
+                    }
                 }
             }
         }

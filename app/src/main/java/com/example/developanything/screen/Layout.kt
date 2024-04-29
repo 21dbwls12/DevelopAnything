@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,7 +91,7 @@ fun TodoWithCheckbox(
     checkCondition: Boolean,
     checkedRemoveUids: MutableList<Int>,
     setClickAdd: (Boolean) -> Unit,
-    setClickTodo: (Int?) -> Unit
+    setClickTodo: (Todo?) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -117,7 +116,7 @@ fun TodoWithCheckbox(
         modifier = Modifier
             .clickable {
                 setClickAdd(true)
-                setClickTodo(todo.uid)
+                setClickTodo(todo)
             }
             .fillMaxWidth()
     ) {
@@ -194,35 +193,46 @@ fun AddTodo(
     setClickAdd: (Boolean) -> Unit,
     focusToTextField: FocusRequester,
     todoCount: Int,
-    clickTodo: Int?
+    clickTodo: Todo?
 ) {
-    var text by remember { mutableStateOf("") }
-    var memo by remember { mutableStateOf("") }
-    var finishDate by remember { mutableStateOf("") }
-    var priority by remember { mutableIntStateOf(todoCount + 1) }
-    val savedDate = currentTimeFormat()
+    var text by remember { mutableStateOf(clickTodo?.todo ?: "") }
+    var memo by remember { mutableStateOf(clickTodo?.memo ?: "") }
+    var finishDate by remember { mutableStateOf(clickTodo?.finishDate ?: "") }
+    var priority by remember { mutableIntStateOf(clickTodo?.priority ?: (todoCount + 1)) }
     val context = LocalContext.current
+    val todayTodo = RoomDB.getInstance(context).GetTodoList()
+    var reorderTodo = listOf<Todo?>()
+    var isBigger = false
+    val filteredTodo = clickTodo?.let { RoomDB.getInstance(context).GetTodo(uid = it.uid) }
+    val savedDate = currentTimeFormat()
     val scope = rememberCoroutineScope()
-    val filteredList = RoomDB.getInstance(context).getTodoList()
-//    var updateTodo: Todo? = null
-//    LaunchedEffect(clickTodo) {
-//        if (clickTodo != null) {
-//            updateTodo = filteredList.find { it.uid == clickTodo }!!
-//        }
-//    }
 
     fun addTodoInList() {
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
         if (text.isNotBlank() && (finishDate.isBlank() || (finishDate.length == 8 && finishDate.isDigitsOnly()))) {
             // db에 추가할 객체 생성
             if (clickTodo != null) {
-                val updateTodo = filteredList.find { it.uid == clickTodo }
+                filteredTodo!!.todo = text
+                filteredTodo.date = savedDate
+                filteredTodo.memo = memo
+                filteredTodo.finishDate = finishDate
+                filteredTodo.priority = priority
+
+                if (clickTodo.priority != priority) {
+                    when (clickTodo.priority < priority) {
+                        true -> {
+                            reorderTodo = todayTodo.filter { it.priority > clickTodo.priority && it.priority <= priority }
+                            isBigger = true
+                        }
+                        else -> {
+                            reorderTodo = todayTodo.filter { it.priority < clickTodo.priority && it.priority >= priority }
+                            isBigger = false
+                        }
+                    }
+                }
                 scope.launch(Dispatchers.IO) {
-                    updateTodo!!.todo = text
-                    updateTodo.memo = memo
-                    updateTodo.finishDate = finishDate
-                    updateTodo.priority = priority
-                    RoomDB.getInstance(context).updateTodo(updateTodo)
+                    RoomDB.getInstance(context).updateTodo(filteredTodo)
+                    RoomDB.getInstance(context).pushPriority(reorderTodo, isBigger)
                 }
             } else {
                 val newTodo = Todo(

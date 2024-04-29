@@ -13,7 +13,7 @@ data class Todo(
     // 완료했는지 안했는지 확인
     @ColumnInfo(name = "isFinished") var isFinished: Boolean? = false,
     // 날짜별로 저장
-    @ColumnInfo(name = "date") val date: String,
+    @ColumnInfo(name = "date") var date: String,
     // 메모
     @ColumnInfo(name = "memo") var memo: String?,
     // 마감일자
