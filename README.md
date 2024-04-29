@@ -17,7 +17,10 @@
 
 ### 사진
 
-https://github.com/21dbwls12/DevelopAnything/assets/139525941/418230e2-2d73-43c3-83eb-185f8ef37278
+![todoListEditPriority](https://github.com/21dbwls12/DevelopAnything/assets/139525941/4336eaec-84b1-4d3c-8c58-5e63d5350139)
+
+
+https://github.com/21dbwls12/DevelopAnything/assets/139525941/233eb69a-df71-41ce-b839-c57bdcf22438
 
 ----------------------
 
