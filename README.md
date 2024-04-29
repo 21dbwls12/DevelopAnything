@@ -1,5 +1,26 @@
 # 안드로이드
 
+## [Todo List 작업 우선 순위 기능](https://github.com/21dbwls12/DevelopAnything/pull/3)
+
+### 목적
+
+### 제출 일자
+
+2024년 4월 29일 09:55:28
+
+### 문제 설명
+
+ <p>Todo List의 작업에 우선 순위를 설정할 수 있는 기능을 추가해주세요!</p>
+ <p>우선 순위 설정 및 표기, 우선 순위에 따른 정렬까지 구성되면 좋을 것 같습니다.</p>
+
+### 피드백
+
+### 사진
+
+https://github.com/21dbwls12/DevelopAnything/assets/139525941/418230e2-2d73-43c3-83eb-185f8ef37278
+
+----------------------
+
 ## [Todo List 완료 기한 입력 및 표시](https://github.com/21dbwls12/DevelopAnything/pull/2)
 
 ### 목적
