@@ -1,6 +1,7 @@
 package com.example.developanything.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -89,6 +91,8 @@ fun TodoWithCheckbox(
     clickDelete: Boolean,
     checkCondition: Boolean,
     checkedRemoveUids: MutableList<Int>,
+    setClickAdd: (Boolean) -> Unit,
+    setClickTodo: (Int?) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -110,6 +114,12 @@ fun TodoWithCheckbox(
 
     Row(
         verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .clickable {
+                setClickAdd(true)
+                setClickTodo(todo.uid)
+            }
+            .fillMaxWidth()
     ) {
         if (clickDelete) {
             Checkbox(
@@ -148,7 +158,11 @@ fun TodoWithCheckbox(
             ),
             enabled = checkCondition
         )
-        Text(text = todo.priority.toString(), color = Color(0xFFF2C12E), modifier = Modifier.padding(top = 12.dp, end = 12.dp))
+        Text(
+            text = todo.priority.toString(),
+            color = Color(0xFFF2C12E),
+            modifier = Modifier.padding(top = 12.dp, end = 12.dp)
+        )
         Column(
             modifier = Modifier.padding(top = 12.dp)
         ) {
@@ -179,24 +193,49 @@ fun TodoWithCheckbox(
 fun AddTodo(
     setClickAdd: (Boolean) -> Unit,
     focusToTextField: FocusRequester,
-    todoCount: Int
+    todoCount: Int,
+    clickTodo: Int?
 ) {
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
     var finishDate by remember { mutableStateOf("") }
-    val priority by remember { mutableIntStateOf(todoCount + 1) }
+    var priority by remember { mutableIntStateOf(todoCount + 1) }
     val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val filteredList = RoomDB.getInstance(context).getTodoList()
+//    var updateTodo: Todo? = null
+//    LaunchedEffect(clickTodo) {
+//        if (clickTodo != null) {
+//            updateTodo = filteredList.find { it.uid == clickTodo }!!
+//        }
+//    }
 
     fun addTodoInList() {
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
         if (text.isNotBlank() && (finishDate.isBlank() || (finishDate.length == 8 && finishDate.isDigitsOnly()))) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate, priority = priority)
-            // 위에서 생성한 객체 db에 추가
-            scope.launch(Dispatchers.IO) {
-                RoomDB.getInstance(context).insertTodo(newTodo)
+            if (clickTodo != null) {
+                val updateTodo = filteredList.find { it.uid == clickTodo }
+                scope.launch(Dispatchers.IO) {
+                    updateTodo!!.todo = text
+                    updateTodo.memo = memo
+                    updateTodo.finishDate = finishDate
+                    updateTodo.priority = priority
+                    RoomDB.getInstance(context).updateTodo(updateTodo)
+                }
+            } else {
+                val newTodo = Todo(
+                    todo = text,
+                    date = savedDate,
+                    memo = memo,
+                    finishDate = finishDate,
+                    priority = priority
+                )
+                // 위에서 생성한 객체 db에 추가
+                scope.launch(Dispatchers.IO) {
+                    RoomDB.getInstance(context).insertTodo(newTodo)
+                }
             }
             text = ""
             memo = ""
@@ -247,11 +286,23 @@ fun AddTodo(
         ) {
             Text(text = "마감일자(20240407)")
         }
+        if (clickTodo != null) {
+            AddTextField(
+                value = priority.toString(),
+                onValueChange = { priority = it.toInt() }
+            ) {
+
+            }
+        }
     }
 }
 
 @Composable
-fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @Composable (() -> Unit)) {
+fun AddTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: @Composable (() -> Unit)
+) {
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -269,7 +320,6 @@ fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @C
         modifier = Modifier.padding(0.dp),
     )
 }
-
 
 
 private fun currentTimeFormat(): String {

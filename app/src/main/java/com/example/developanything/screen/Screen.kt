@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
@@ -29,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.developanything.room.RoomDB
+import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -41,6 +43,7 @@ fun TodoListScreen() {
     // 추가 버튼을 눌렀을 때 TextField를 나타나게 하기 위함
     var clickAdd by remember { mutableStateOf(false) }
     var clickDelete by remember { mutableStateOf(false) }
+    var clickTodo by remember { mutableStateOf<Int?>(null) }
     val focusToTextField = remember { FocusRequester() }
 
     val context = LocalContext.current
@@ -78,23 +81,39 @@ fun TodoListScreen() {
         }
     }
 
+    fun handleTodoClick(todoUid: Int) {
+        clickTodo = todoUid
+    }
+
     Column(
         modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
     ) {
         // clickAdd의 상태를 다른 스코프에서도 변경할 수 있음
         TopBar(
-            setClickAdd = { handleAddClick(it) },
+            setClickAdd = {
+                handleAddClick(it)
+                if (it) clickTodo = null
+            },
             setClickDelete = ::handleDeleteClick,
-            clickAdd = clickAdd
+            clickAdd = clickAdd,
         )
 
         Partition()
 
         TodoList(
             clickAdd,
-            setClickAdd = { clickAdd = it },
+            setClickAdd = {
+                clickAdd = it
+                if (it) clickTodo = null
+            },
+            setClickTodo = {
+                if (it != null) {
+                    handleTodoClick(it)
+                }
+            },
             focusToTextField,
             clickDelete,
+            clickTodo,
             checkedRemoveUids
         )
     }
@@ -104,7 +123,7 @@ fun TodoListScreen() {
 private fun TopBar(
     setClickAdd: (Boolean) -> Unit,
     setClickDelete: () -> Unit,
-    clickAdd: Boolean
+    clickAdd: Boolean,
 ) {
     val currentDate = LocalDate.now()
     // 날짜
@@ -156,8 +175,10 @@ private fun Partition() {
 private fun TodoList(
     clickAdd: Boolean,
     setClickAdd: (Boolean) -> Unit,
+    setClickTodo: (Int?) -> Unit,
     focusToTextField: FocusRequester,
     clickDelete: Boolean,
+    clickTodo: Int?,
     checkedRemoveUids: MutableList<Int>
 ) {
     val context = LocalContext.current
@@ -165,13 +186,15 @@ private fun TodoList(
     val todoCount = RoomDB.getInstance(context).getTodoList().size
 
     LazyColumn {
-        itemsIndexed(filteredList) { _, todo ->
+        items(filteredList) {todo ->
             ListContainer {
                 TodoWithCheckbox(
                     todo = todo,
                     clickDelete = clickDelete,
                     checkCondition = !clickDelete,
-                    checkedRemoveUids = checkedRemoveUids
+                    checkedRemoveUids = checkedRemoveUids,
+                    setClickAdd = setClickAdd,
+                    setClickTodo = setClickTodo
                 )
             }
         }
@@ -181,7 +204,8 @@ private fun TodoList(
                     AddTodo(
                         setClickAdd = setClickAdd,
                         focusToTextField = focusToTextField,
-                        todoCount = todoCount
+                        todoCount = todoCount,
+                        clickTodo = clickTodo
                     )
                 }
             }
