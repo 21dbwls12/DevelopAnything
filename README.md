@@ -119,6 +119,8 @@ dependencies {
 [Kotlin과 Compose와의 호환 버전 확인](https://developer.android.com/jetpack/androidx/releases/compose-kotlin?hl=ko)  
 
 ### 피드백
+<p>annotationProcessor == javaAP(JAP)</p>
+<p>ksp, kapt 같이 쓰면 kapt로 빌드됨</p>
 
 ### 사진
 
