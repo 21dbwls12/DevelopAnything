@@ -54,11 +54,11 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
 }
 ```
-[Navigation 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/develop/ui/compose/navigation?hl=ko)
-[View Model 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/topic/libraries/architecture/viewmodel?hl=ko)
-[View Model 구현 참고 사이트](https://developer.android.com/codelabs/basic-android-kotlin-compose-viewmodel-and-state?hl=ko#4)
-[Room 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/training/data-storage/room?hl=ko)
-[Room 구현 참고 링크](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)
+[Navigation 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/develop/ui/compose/navigation?hl=ko)  
+[View Model 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/topic/libraries/architecture/viewmodel?hl=ko)  
+[View Model 구현 참고 사이트](https://developer.android.com/codelabs/basic-android-kotlin-compose-viewmodel-and-state?hl=ko#4)  
+[Room 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/training/data-storage/room?hl=ko)  
+[Room 구현 참고 링크](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)  
 
 ### 피드백
 
