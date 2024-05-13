@@ -21,4 +21,8 @@
 
 ### 005.todoList
 
-- [안드로이드 Todo List](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)
+- [Todo List](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)
+
+### 006.habit
+
+- [습관 인증 앱](https://github.com/21dbwls12/DevelopAnything/tree/006.habit)
