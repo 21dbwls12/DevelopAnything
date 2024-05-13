@@ -1,24 +1,65 @@
 # 안드로이드 
 
+## 습관 인증 앱
 
-## 브랜치
+### 목적
+Room, ViewModel, Flow, Compose, Camera
 
-### 001.basicChangingActivity
+### 제출 일자
 
-- [안드로이드 기본 화면 전환](https://github.com/21dbwls12/DevelopAnything/tree/001.basicChangingActivity)
+2024년 5월 13일 21:06:28
 
-### 002.lotto
+### 문제 설명
 
-- [로또 번호 생성기](https://github.com/21dbwls12/DevelopAnything/tree/002.lotto)
+ <p>한 일을 사진 혹은 음성과 함께 저장 한다.</p>
+ <p>앱을 껐다 켜도 유지가 되고, 완료 된 할일을 관 리하고 삭제할 수 있다.</p>
+ <p>ex) 오운완, 미라클모닝, 1일 1노래,</p>
+ <b>
+ <p>2주 프로젝트로 학습하며 해보세요 🙂</p>
+ <p>commit을 지속적으로 관리해보세요</p>
 
-### 003.navigation
+### 조건
 
-- [Navigation Compose를 이용한 화면 전환](https://github.com/21dbwls12/DevelopAnything/tree/003.navigation)
+ <p>Room을 사용한 데이터 저장, ViewModel, Compose 이해, 사진 촬영 및 사진 데이터 가져오기, 결과물 git repo</p>
 
-### 004.composeAnimation
+### 사용한 함수
 
-- [안드로이드 Compose Animation](https://github.com/21dbwls12/DevelopAnything/tree/004.composeAnimation)
+```kotlin
+// 프로젝트 수준 그래들
+plugins {
+  // Room ksp
+  id("com.google.devtools.ksp") version "1.9.23-1.0.19" apply false
+}
+// 앱 수준 그래들
+plugins{
+  // Room ksp
+    id("com.google.devtools.ksp")
+}
+dependencies {
+// Navigation Compose
+    val navVersion = "2.7.7"
 
-### 005.todoList
+    implementation("androidx.navigation:navigation-compose:$navVersion")
 
-- [안드로이드 Todo List](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)
+    // View Model
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+    // Room
+    val roomVersion = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$roomVersion")
+
+    ksp("androidx.room:room-compiler:$roomVersion")
+
+    implementation("androidx.room:room-ktx:$roomVersion")
+}
+```
+[Navigation 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/develop/ui/compose/navigation?hl=ko)
+[View Model 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/topic/libraries/architecture/viewmodel?hl=ko)
+[View Model 구현 참고 사이트](https://developer.android.com/codelabs/basic-android-kotlin-compose-viewmodel-and-state?hl=ko#4)
+[Room 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/training/data-storage/room?hl=ko)
+[Room 구현 참고 링크](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)
+
+### 피드백
+
+### 사진
