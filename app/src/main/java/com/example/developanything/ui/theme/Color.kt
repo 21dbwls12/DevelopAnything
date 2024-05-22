@@ -14,7 +14,7 @@ val Pink40 = Color(0xFF7D5260)
 val BlueGreen = Color(0xFF58C7C5)
 
 val sky = Color(0xFF8BD9D9)
-val tree = Color(0xFF038C17)
+val tree = Color(0xFFB4D97E)
 
 val LightColors = Colors(
     background = Color(0xFFF0F0F2),
