@@ -3,6 +3,7 @@ package com.example.developanything.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,8 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,10 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.developanything.Colors
 import com.example.developanything.R
 import com.example.developanything.ui.theme.DarkColors
 import com.example.developanything.ui.theme.LightColors
-import com.example.developanything.ui.theme.tree
+import com.example.developanything.ui.theme.LightTree
 
 @Composable
 @Preview(showBackground = true)
@@ -39,7 +51,9 @@ fun PreviewScreen() {
         modifier = Modifier.fillMaxSize(),
         color = colors.background
     ) {
-        CertificationScreen()
+        ScaffoldBar(colors) {
+            CertificationScreen()
+        }
     }
 }
 
@@ -56,7 +70,7 @@ fun CertificationScreen() {
         Card(
             onClick = {},
             elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(tree),
+            colors = CardDefaults.cardColors(LightTree),
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,5 +100,28 @@ fun CertificationScreen() {
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldBar(colors: Colors, content: @Composable (PaddingValues) -> Unit) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(title = { Text(text = "오늘의 진행도", color = colors.star) })
+        },
+        bottomBar = {
+            BottomAppBar {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.outlined_premium),
+                        contentDescription = "현재 인증 진행도",
+                        tint = colors.text
+                    )
+                }
+            }
+        }
+    ) {
+        content(it)
     }
 }

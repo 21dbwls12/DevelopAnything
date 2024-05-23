@@ -13,15 +13,18 @@ val Pink40 = Color(0xFF7D5260)
 
 val BlueGreen = Color(0xFF58C7C5)
 
-val sky = Color(0xFF8BD9D9)
-val tree = Color(0xFFB4D97E)
+val Sky = Color(0xFF8BD9D9)
+val LightTree = Color(0xFFB4D97E)
+val DarkTree = Color(0xFF038C17)
 
 val LightColors = Colors(
     background = Color(0xFFF0F0F2),
     star = Color(0xFFF28705),
+    text = Color.Black,
 )
 
 val DarkColors = Colors(
     background = Color(0xFF0D0D0D),
     star = Color(0xFFD5E5F2),
+    text = Color.White,
 )
