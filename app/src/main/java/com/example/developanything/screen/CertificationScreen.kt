@@ -29,11 +29,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -106,6 +110,7 @@ fun ScaffoldBar(
     content: @Composable (PaddingValues) -> Unit
 ) {
     val clickAdd = viewModel.clickAdd
+    val sheetState = rememberModalBottomSheetState()
 
     Scaffold(
         topBar = {
@@ -156,10 +161,14 @@ fun ScaffoldBar(
         },
         containerColor = colors.background
     ) {
-        content(it)
-        if (clickAdd) {
-            AddCBottomSheet(colors = colors, setClickAdd = { viewModel.clickAdd = it })
+        LaunchedEffect(key1 = clickAdd) {
+            if (clickAdd) {
+                sheetState.show()
+            } else {
+                sheetState.hide()
+            }
         }
+        content(it)
     }
 }
 
@@ -239,7 +248,7 @@ fun NaviIconButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCBottomSheet(colors: Colors, setClickAdd: (Boolean) -> Unit) {
+fun AddCBottomSheet(colors: Colors, sheetState: SheetState, setClickAdd: (Boolean) -> Unit) {
     var habit by remember { mutableStateOf("") }
     var detail by remember { mutableStateOf("") }
     var clickImage by remember { mutableStateOf(true) }
@@ -250,6 +259,7 @@ fun AddCBottomSheet(colors: Colors, setClickAdd: (Boolean) -> Unit) {
             setClickAdd(false)
         },
         containerColor = colors.background,
+        sheetState = sheetState,
         modifier = Modifier.heightIn(min = 500.dp, max = Int.MAX_VALUE.dp)
     ) {
         Button(
@@ -289,7 +299,9 @@ fun AddCBottomSheet(colors: Colors, setClickAdd: (Boolean) -> Unit) {
                 )
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp)
                 ) {
                     AddButton(
                         colors = colors,

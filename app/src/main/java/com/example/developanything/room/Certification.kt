@@ -19,6 +19,8 @@ data class Certification(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val habitId: Int,
     val date: Date,
+    val habit: String,
+    val detail: String?,
     val image: String?,
     val voice: String?,
 )
