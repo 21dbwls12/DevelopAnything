@@ -1,6 +1,7 @@
 package com.example.developanything
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,12 +18,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val colors = if (isSystemInDarkTheme()) DarkColors else LightColors
+            val display = this.applicationContext?.resources?.displayMetrics
+            val width = display?.widthPixels
+            val context = this
+            val deviceWidth = width!! / ((context.resources.displayMetrics.densityDpi.toFloat()) / DisplayMetrics.DENSITY_DEFAULT)
+
             DevelopAnythingTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = colors.background
                 ) {
-                    CertificationScreen()
+                    CertificationScreen(colors, deviceWidth)
                 }
             }
         }
