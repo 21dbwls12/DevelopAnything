@@ -70,12 +70,12 @@ import kotlinx.coroutines.launch
 fun CertificationScreen(
     colors: Colors,
     deviceWidth: Float,
-    viewModel: HabitViewModel = viewModel(),
+    viewModel: HabitViewModel,
     navController: NavController
 ) {
 //    val clickNaviIcon by remember { mutableStateOf(false) }
     val currentRoute = navController.currentDestination?.route
-    val habitList = viewModel.getHabitList()
+    val habitList = viewModel.allHabits
 
     ScaffoldBar(colors = colors, currentRoute = currentRoute, viewModel = viewModel) {
         Column(
@@ -93,9 +93,11 @@ fun CertificationScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(0.998f)
             ) {
-                items(habitList.value) {
-                    HabitCard(color = LightTree, habit = it, deviceWidth = deviceWidth) {
+                habitList.value?.let {
+                    items(it) {
+                        HabitCard(color = LightTree, habit = it, deviceWidth = deviceWidth) {
 
+                        }
                     }
                 }
             }
@@ -164,13 +166,18 @@ fun ScaffoldBar(
         },
         containerColor = colors.background
     ) {
-        LaunchedEffect(key1 = clickAdd) {
-            if (clickAdd) {
-                sheetState.show()
-            } else {
-                sheetState.hide()
+        if (clickAdd) {
+            AddCBottomSheet(colors = colors, sheetState = sheetState, viewModel = viewModel) {
+                viewModel.setAddClick()
             }
         }
+//        LaunchedEffect(key1 = clickAdd) {
+//            if (clickAdd) {
+//                sheetState.show()
+//            } else {
+//                sheetState.hide()
+//            }
+//        }
         content(it)
     }
 }
@@ -251,7 +258,7 @@ fun NaviIconButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCBottomSheet(colors: Colors, sheetState: SheetState, viewModel: HabitViewModel = viewModel(), setClickAdd: (Boolean) -> Unit) {
+fun AddCBottomSheet(colors: Colors, sheetState: SheetState, viewModel: HabitViewModel, setClickAdd: (Boolean) -> Unit) {
     var habit by remember { mutableStateOf("") }
     var detail by remember { mutableStateOf("") }
     var clickImage by remember { mutableStateOf(true) }

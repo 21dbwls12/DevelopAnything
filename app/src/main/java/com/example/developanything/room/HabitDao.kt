@@ -16,10 +16,10 @@ interface HabitDao {
     fun getALLCertification(): Flow<List<Certification>>
 
     @Insert
-    fun insertAllHabit(vararg habits: Habit)
+    fun insertHabit(vararg habits: Habit)
 
     @Insert
-    fun insertAllCertification(vararg certifications: Certification)
+    fun insertCertification(vararg certifications: Certification)
 
     @Update
     fun updateHabit(vararg habits: Habit)

@@ -9,14 +9,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.developanything.navigation.NavScreen
+import com.example.developanything.room.AppDatabase
 import com.example.developanything.screen.CertificationScreen
 import com.example.developanything.ui.theme.DarkColors
 import com.example.developanything.ui.theme.DevelopAnythingTheme
 import com.example.developanything.ui.theme.LightColors
+import com.example.developanything.viewmodel.HabitRepository
+import com.example.developanything.viewmodel.HabitViewModel
+import com.example.developanything.viewmodel.HabitViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +37,11 @@ class MainActivity : ComponentActivity() {
             val startDestination = remember {
                 NavScreen.Certification.route
             }
+            val db = AppDatabase.getDatabase(this)
+            val habitDao = db.habitDao()
+            val repository = HabitRepository(habitDao)
+            val viewModelFactory = HabitViewModelFactory(repository)
+            val viewModel = ViewModelProvider(this, viewModelFactory).get(HabitViewModel::class.java)
 
             DevelopAnythingTheme {
                 Surface(
@@ -42,6 +53,7 @@ class MainActivity : ComponentActivity() {
                             CertificationScreen(
                                 colors = colors,
                                 deviceWidth = deviceWidth,
+                                viewModel = viewModel,
                                 navController = navController
                             )
                         }
