@@ -1,5 +1,6 @@
 package com.example.developanything.room
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -10,10 +11,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface HabitDao {
     @Query("SELECT * FROM habit")
-    fun getALLHabit(): Flow<List<Habit>>
+    fun getAllHabit(): Flow<List<Habit>>
+
+    // paging 라이브러리 이용하여 무한 스크롤
+//    @Query("SELECT * FROM habit")
+//    fun getInfiniteHabit() : PagingSource<Int, Habit>
 
     @Query("SELECT * FROM certification")
-    fun getALLCertification(): Flow<List<Certification>>
+    fun getAllCertification(): Flow<List<Certification>>
 
     @Insert
     fun insertHabit(vararg habits: Habit)

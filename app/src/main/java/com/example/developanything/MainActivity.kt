@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,7 +40,7 @@ class MainActivity : ComponentActivity() {
             val habitDao = db.habitDao()
             val repository = HabitRepository(habitDao)
             val viewModelFactory = HabitViewModelFactory(repository)
-            val viewModel = ViewModelProvider(this, viewModelFactory).get(HabitViewModel::class.java)
+            val viewModel = ViewModelProvider(this, viewModelFactory)[HabitViewModel::class.java]
 
             DevelopAnythingTheme {
                 Surface(

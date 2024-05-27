@@ -1,5 +1,6 @@
 package com.example.developanything.screen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,12 +10,19 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,17 +44,24 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
+import androidx.paging.Pager
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.developanything.Colors
 import com.example.developanything.R
 import com.example.developanything.room.Habit
@@ -54,7 +69,9 @@ import com.example.developanything.ui.theme.DarkTree
 import com.example.developanything.ui.theme.LightTree
 import com.example.developanything.ui.theme.Sky
 import com.example.developanything.viewmodel.HabitViewModel
+import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CertificationScreen(
     colors: Colors,
@@ -63,9 +80,16 @@ fun CertificationScreen(
     navController: NavController
 ) {
     val currentRoute = navController.currentDestination?.route
-    val habitList = viewModel.allHabits
+    val habitList by viewModel.allHabit.observeAsState(initial = emptyList())
+    // paging 라이브러리 이용하여 무한 스크롤
+//    val lazyPagingItems = viewModel.infiniteHabit().collectAsLazyPagingItems()
+    val pagerState = rememberPagerState(pageCount = { habitList.size })
+    val fling = PagerDefaults.flingBehavior(
+        state = pagerState,
+        pagerSnapDistance = PagerSnapDistance.atMost(10)
+    )
 
-    ScaffoldBar(colors = colors, currentRoute = currentRoute, viewModel = viewModel) {
+    ScaffoldBar(colors = colors, currentRoute = currentRoute, viewModel = viewModel) { it ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -75,18 +99,43 @@ fun CertificationScreen(
         ) {
             HorizontalDivider(thickness = 1.dp, color = Sky)
             // 인증 목록
-            LazyRow(
-                horizontalArrangement = Arrangement.SpaceEvenly,
+//            LazyRow(
+//                horizontalArrangement = Arrangement.SpaceEvenly,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .fillMaxHeight(0.998f)
+//            ) {
+//                items(habitList) { habit ->
+//                    HabitCard(habit = habit, deviceWidth = deviceWidth) {
+//
+//                    }
+//                }
+//                // paging 라이브러리 이용하여 무한 스크롤
+////                items(lazyPagingItems.itemCount) {
+////                    val item = lazyPagingItems[it]
+////                    if (item != null) {
+////                        HabitCard(habit = item, deviceWidth = deviceWidth) {
+////
+////                        }
+////                    }
+////                }
+//            }
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.998f)
+                    .align(Alignment.CenterHorizontally),
+                contentPadding = PaddingValues(horizontal = 25.dp),
+                pageSpacing = 15.dp,
+                flingBehavior = fling
             ) {
-                habitList.value?.let { habits ->
-                    items(habits) { habit ->
-                        HabitCard(habit = habit, deviceWidth = deviceWidth) {
+                HabitCard(
+                    habit = habitList[it],
+                    pagerState = pagerState,
+                    page = it,
+                    deviceWidth = deviceWidth
+                ) {
 
-                        }
-                    }
                 }
             }
             HorizontalDivider(thickness = 1.dp, color = Sky)
@@ -166,17 +215,49 @@ fun ScaffoldBar(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HabitCard(habit: Habit, deviceWidth: Float, onclick: () -> Unit) {
+fun HabitCard(
+    habit: Habit,
+    deviceWidth: Float,
+    pagerState: PagerState,
+    page: Int,
+    onclick: () -> Unit
+) {
     Card(
         onClick = onclick,
         elevation = CardDefaults.cardElevation(5.dp),
         colors = CardDefaults.cardColors(if (habit.type == "image") LightTree else DarkTree),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
-            .width((deviceWidth - 40).dp)
+//            .width((deviceWidth - 40).dp)
             .fillMaxHeight()
-            .padding(vertical = 15.dp, horizontal = 5.dp)
+            .padding(vertical = 15.dp)
+            .graphicsLayer {
+                // Calculate the absolute offset for the current page from the
+                // scroll position. We use the absolute value which allows us to mirror
+                // any effects for both directions
+                val pageOffset =
+                    (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+
+                // We animate the alpha, between 50% and 100%
+                alpha = lerp(
+                    start = 0.5f,
+                    stop = 1f,
+                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                )
+                // 높이과 위치 변경
+                lerp(
+                    start = 1f,
+                    stop = 0.8f,
+                    fraction = pageOffset.absoluteValue.coerceIn(0f, 1f),
+                ).let {
+                    scaleX = it
+                    scaleY = it
+                    val sign = if (pageOffset > 0) 1 else -1
+                    translationX = sign * size.width * (1 - it) / 2
+                }
+            }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -186,12 +267,20 @@ fun HabitCard(habit: Habit, deviceWidth: Float, onclick: () -> Unit) {
         ) {
             Text(
                 text = habit.habit,
-                fontSize = 20.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            habit.detail?.let { Text(text = it, fontSize = 16.sp, color = Color.White) }
+            Spacer(modifier = Modifier.height(20.dp))
+            habit.detail?.let {
+                Text(
+                    text = it,
+                    fontSize = 19.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
