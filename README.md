@@ -7,7 +7,7 @@ Room, ViewModel, Flow, Compose, Camera
 
 ### 제출 일자
 
-2024년 5월 13일 21:06:28
+2024년 5월 28일 07:29:28
 
 ### 문제 설명
 
@@ -59,6 +59,10 @@ dependencies {
 [View Model 구현 참고 사이트](https://developer.android.com/codelabs/basic-android-kotlin-compose-viewmodel-and-state?hl=ko#4)  
 [Room 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/training/data-storage/room?hl=ko)  
 [Room 구현 참고 링크](https://github.com/21dbwls12/DevelopAnything/tree/005.todoList)  
+[Pager 관련 안드로이드 스튜디오 공식 사이트](https://developer.android.com/develop/ui/compose/layouts/pager?hl=ko)
+[Pager 이동 관련 애니메이션(크기, 위치)](https://medium.com/@mangbaam/android-compose-horizontalpager-animations-w-%EB%B6%88%ED%8B%B0-e18ab02458d8)
+[Pager 이동 관련 애니메이션(부채꼴)](https://jizard.tistory.com/507)
+[Pager endless scroll](https://jizard.tistory.com/508#google_vignette)
 
 ### 피드백
 
