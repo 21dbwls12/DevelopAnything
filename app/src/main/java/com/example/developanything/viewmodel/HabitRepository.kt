@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class HabitRepository(private val habitDao: HabitDao) {
     val allHabits: Flow<List<Habit>> = habitDao.getALLHabit()
 
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
     suspend fun insertHabit(newHabit: Habit) {
         habitDao.insertHabit(newHabit)
     }

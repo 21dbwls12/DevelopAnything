@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,15 +34,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +46,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.developanything.Colors
 import com.example.developanything.R
@@ -63,8 +54,6 @@ import com.example.developanything.ui.theme.DarkTree
 import com.example.developanything.ui.theme.LightTree
 import com.example.developanything.ui.theme.Sky
 import com.example.developanything.viewmodel.HabitViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun CertificationScreen(
@@ -73,7 +62,6 @@ fun CertificationScreen(
     viewModel: HabitViewModel,
     navController: NavController
 ) {
-//    val clickNaviIcon by remember { mutableStateOf(false) }
     val currentRoute = navController.currentDestination?.route
     val habitList = viewModel.allHabits
 
@@ -93,9 +81,9 @@ fun CertificationScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(0.998f)
             ) {
-                habitList.value?.let {
-                    items(it) {
-                        HabitCard(color = LightTree, habit = it, deviceWidth = deviceWidth) {
+                habitList.value?.let { habits ->
+                    items(habits) { habit ->
+                        HabitCard(habit = habit, deviceWidth = deviceWidth) {
 
                         }
                     }
@@ -114,8 +102,8 @@ fun ScaffoldBar(
     viewModel: HabitViewModel,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val clickAdd = viewModel.clickAdd
-    val sheetState = rememberModalBottomSheetState()
+    // skipPartiallyExpanded = true -> 모든 항목이 다 보일 수 있도록 설정(키보드 올라가면 전체화면 됨)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         topBar = {
@@ -146,7 +134,7 @@ fun ScaffoldBar(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    viewModel.setAddClick()
+                    viewModel.clickAdd = true
                 },
                 containerColor = colors.background,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp),
@@ -165,29 +153,25 @@ fun ScaffoldBar(
             }
         },
         containerColor = colors.background
-    ) {
-        if (clickAdd) {
-            AddCBottomSheet(colors = colors, sheetState = sheetState, viewModel = viewModel) {
-                viewModel.setAddClick()
-            }
+    ) { it ->
+        if (viewModel.clickAdd) {
+            AddCBottomSheet(
+                colors = colors,
+                sheetState = sheetState,
+                viewModel = viewModel,
+                setClickAdd = { viewModel.clickAdd = it }
+            )
         }
-//        LaunchedEffect(key1 = clickAdd) {
-//            if (clickAdd) {
-//                sheetState.show()
-//            } else {
-//                sheetState.hide()
-//            }
-//        }
         content(it)
     }
 }
 
 @Composable
-fun HabitCard(color: Color, habit: Habit, deviceWidth: Float, onclick: () -> Unit) {
+fun HabitCard(habit: Habit, deviceWidth: Float, onclick: () -> Unit) {
     Card(
         onClick = onclick,
         elevation = CardDefaults.cardElevation(5.dp),
-        colors = CardDefaults.cardColors(color),
+        colors = CardDefaults.cardColors(if (habit.type == "image") LightTree else DarkTree),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .width((deviceWidth - 40).dp)
@@ -201,12 +185,13 @@ fun HabitCard(color: Color, habit: Habit, deviceWidth: Float, onclick: () -> Uni
                 .fillMaxWidth()
         ) {
             Text(
-                text = "매일 인증해야하는 습관",
+                text = habit.habit,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
             Spacer(modifier = Modifier.width(8.dp))
+            habit.detail?.let { Text(text = it, fontSize = 16.sp, color = Color.White) }
         }
     }
 }
@@ -258,33 +243,22 @@ fun NaviIconButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCBottomSheet(colors: Colors, sheetState: SheetState, viewModel: HabitViewModel, setClickAdd: (Boolean) -> Unit) {
-    var habit by remember { mutableStateOf("") }
-    var detail by remember { mutableStateOf("") }
-    var clickImage by remember { mutableStateOf(true) }
-    var clickVoice by remember { mutableStateOf(false) }
-    var typeText by remember { mutableStateOf("image") }
-    val scope = rememberCoroutineScope()
-
+fun AddCBottomSheet(
+    colors: Colors,
+    sheetState: SheetState,
+    viewModel: HabitViewModel,
+    setClickAdd: (Boolean) -> Unit
+) {
     ModalBottomSheet(
         onDismissRequest = {
             setClickAdd(false)
         },
         containerColor = colors.background,
         sheetState = sheetState,
-        modifier = Modifier.heightIn(min = 500.dp, max = Int.MAX_VALUE.dp)
     ) {
         Button(
             onClick = {
-                if (habit.isNotBlank() && typeText.isNotBlank()) {
-                    val newHabit = Habit(habit = habit, detail = detail, type = typeText)
-                    scope.launch(Dispatchers.IO) {
-                        viewModel.insertHabit(newHabit)
-                    }
-                    habit = ""
-                    detail = ""
-                    setClickAdd(false)
-                }
+                viewModel.addHabit()
             },
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(colors.background),
@@ -306,15 +280,15 @@ fun AddCBottomSheet(colors: Colors, sheetState: SheetState, viewModel: HabitView
         ) {
             item {
                 AddTextField(
-                    value = habit,
-                    onValueChange = { habit = it },
+                    value = viewModel.habit,
+                    onValueChange = { viewModel.habit = it },
                     placeholder = "습관",
                     colors = colors,
                     height = null
                 )
                 AddTextField(
-                    value = detail,
-                    onValueChange = { detail = it },
+                    value = viewModel.detail,
+                    onValueChange = { viewModel.detail = it },
                     placeholder = "세부 사항",
                     colors = colors,
                     height = 200,
@@ -328,20 +302,20 @@ fun AddCBottomSheet(colors: Colors, sheetState: SheetState, viewModel: HabitView
                     AddButton(
                         colors = colors,
                         icon = R.drawable.round_image_24,
-                        condition = clickImage,
+                        condition = viewModel.clickImage,
                     ) {
-                        clickImage = true
-                        clickVoice = false
-                        typeText = "image"
+                        viewModel.clickImage = true
+                        viewModel.clickVoice = false
+                        viewModel.typeText = "image"
                     }
                     AddButton(
                         colors = colors,
                         icon = R.drawable.round_voicemail_24,
-                        condition = clickVoice,
+                        condition = viewModel.clickVoice,
                     ) {
-                        clickImage = false
-                        clickVoice = true
-                        typeText = "voice"
+                        viewModel.clickImage = false
+                        viewModel.clickVoice = true
+                        viewModel.typeText = "voice"
                     }
                 }
             }
