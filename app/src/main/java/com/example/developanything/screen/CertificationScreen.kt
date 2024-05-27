@@ -1,5 +1,9 @@
 package com.example.developanything.screen
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,14 +14,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
@@ -55,13 +54,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import androidx.paging.Pager
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.developanything.Colors
 import com.example.developanything.R
 import com.example.developanything.room.Habit
@@ -75,7 +71,6 @@ import kotlin.math.absoluteValue
 @Composable
 fun CertificationScreen(
     colors: Colors,
-    deviceWidth: Float,
     viewModel: HabitViewModel,
     navController: NavController
 ) {
@@ -88,6 +83,11 @@ fun CertificationScreen(
         state = pagerState,
         pagerSnapDistance = PagerSnapDistance.atMost(10)
     )
+    val pickMedia = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            viewModel.selectedUri = uri
+        }
+    }
 
     ScaffoldBar(colors = colors, currentRoute = currentRoute, viewModel = viewModel) { it ->
         Column(
@@ -133,9 +133,10 @@ fun CertificationScreen(
                     habit = habitList[it],
                     pagerState = pagerState,
                     page = it,
-                    deviceWidth = deviceWidth
                 ) {
-
+                    if (habitList[it].type == "image") {
+                        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                    }
                 }
             }
             HorizontalDivider(thickness = 1.dp, color = Sky)
@@ -208,7 +209,6 @@ fun ScaffoldBar(
                 colors = colors,
                 sheetState = sheetState,
                 viewModel = viewModel,
-                setClickAdd = { viewModel.clickAdd = it }
             )
         }
         content(it)
@@ -219,7 +219,6 @@ fun ScaffoldBar(
 @Composable
 fun HabitCard(
     habit: Habit,
-    deviceWidth: Float,
     pagerState: PagerState,
     page: Int,
     onclick: () -> Unit
@@ -230,7 +229,6 @@ fun HabitCard(
         colors = CardDefaults.cardColors(if (habit.type == "image") LightTree else DarkTree),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
-//            .width((deviceWidth - 40).dp)
             .fillMaxHeight()
             .padding(vertical = 15.dp)
             .graphicsLayer {
@@ -336,11 +334,10 @@ fun AddCBottomSheet(
     colors: Colors,
     sheetState: SheetState,
     viewModel: HabitViewModel,
-    setClickAdd: (Boolean) -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = {
-            setClickAdd(false)
+            viewModel.cancelAddHabit()
         },
         containerColor = colors.background,
         sheetState = sheetState,

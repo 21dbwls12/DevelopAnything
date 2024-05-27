@@ -1,12 +1,9 @@
 package com.example.developanything.viewmodel
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
+import com.example.developanything.room.Certification
 import com.example.developanything.room.Habit
 import com.example.developanything.room.HabitDao
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
 
 class HabitRepository(private val habitDao: HabitDao) {
     val allHabit: Flow<List<Habit>> = habitDao.getAllHabit()
@@ -17,5 +14,9 @@ class HabitRepository(private val habitDao: HabitDao) {
 
     fun insertHabit(newHabit: Habit) {
         habitDao.insertHabit(newHabit)
+    }
+
+    fun insertCertification(newCertification: Certification) {
+        habitDao.insertCertification(newCertification)
     }
 }

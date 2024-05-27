@@ -1,8 +1,9 @@
 package com.example.developanything.viewmodel
 
+import android.net.Uri
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,10 +12,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
+import com.example.developanything.room.Certification
 import com.example.developanything.room.Habit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
@@ -25,12 +25,19 @@ class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
     var clickImage by mutableStateOf(true)
     var clickVoice by mutableStateOf(false)
     var typeText by mutableStateOf("image")
+    var selectedUri: Uri? by mutableStateOf(null)
 
     // paging 라이브러리 이용하여 무한 스크롤
 //    @Composable
 //    fun infiniteHabit(): Flow<PagingData<Habit>> {
 //        return repository.allInfiniteHabit
 //    }
+
+    fun cancelAddHabit() {
+        habit = ""
+        detail = ""
+        clickAdd = false
+    }
 
     private fun insertHabit(habit: Habit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -48,6 +55,16 @@ class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
             detail = ""
             clickAdd = false
         }
+    }
+
+    private fun insertCertification(certification: Certification) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertCertification(certification)
+        }
+    }
+
+    fun addcertification() {
+
     }
 }
 

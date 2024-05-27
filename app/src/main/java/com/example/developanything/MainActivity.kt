@@ -28,10 +28,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val colors = if (isSystemInDarkTheme()) DarkColors else LightColors
-            val display = this.applicationContext?.resources?.displayMetrics
-            val width = display?.widthPixels
-            val deviceWidth =
-                width!! / ((this.resources.displayMetrics.densityDpi.toFloat()) / DisplayMetrics.DENSITY_DEFAULT)
+            // 사용자의 기기 화면 크기
+//            val display = this.applicationContext?.resources?.displayMetrics
+//            val width = display?.widthPixels
+//            val deviceWidth =
+//                width!! / ((this.resources.displayMetrics.densityDpi.toFloat()) / DisplayMetrics.DENSITY_DEFAULT)
             val navController = rememberNavController()
             val startDestination = remember {
                 NavScreen.Certification.route
@@ -51,7 +52,6 @@ class MainActivity : ComponentActivity() {
                         composable(NavScreen.Certification.route) {
                             CertificationScreen(
                                 colors = colors,
-                                deviceWidth = deviceWidth,
                                 viewModel = viewModel,
                                 navController = navController
                             )
