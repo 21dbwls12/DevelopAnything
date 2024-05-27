@@ -96,4 +96,9 @@ dependencies {
     // optional - Jetpack Compose integration
     implementation("androidx.paging:paging-compose:3.3.0")
     implementation ("androidx.room:room-paging:$roomVersion")
+
+    // coil
+    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation("io.coil-kt:coil-video:2.3.0")
+    implementation("io.coil-kt:coil-gif:2.3.0")
 }
