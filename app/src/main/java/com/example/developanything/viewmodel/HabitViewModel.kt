@@ -1,10 +1,8 @@
 package com.example.developanything.viewmodel
 
 import android.net.Uri
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
@@ -16,9 +14,11 @@ import com.example.developanything.room.Certification
 import com.example.developanything.room.Habit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
     val allHabit: LiveData<List<Habit>> = repository.allHabit.asLiveData()
+    val allCertification: LiveData<List<Certification>> = repository.allCertification.asLiveData()
     var clickAdd by mutableStateOf(false)
     var habit by mutableStateOf("")
     var detail by mutableStateOf("")
@@ -26,6 +26,9 @@ class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
     var clickVoice by mutableStateOf(false)
     var typeText by mutableStateOf("image")
     var selectedUri: Uri? by mutableStateOf(null)
+    var habitId by mutableIntStateOf(0)
+    var flipCard by mutableStateOf(false)
+
 
     // paging 라이브러리 이용하여 무한 스크롤
 //    @Composable
@@ -36,6 +39,9 @@ class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
     fun cancelAddHabit() {
         habit = ""
         detail = ""
+        typeText = "image"
+        clickImage = true
+        clickVoice = false
         clickAdd = false
     }
 
@@ -53,6 +59,9 @@ class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
             }
             habit = ""
             detail = ""
+            typeText = "image"
+            clickImage = true
+            clickVoice = false
             clickAdd = false
         }
     }
@@ -63,8 +72,22 @@ class HabitViewModel(private val repository: HabitRepository) : ViewModel() {
         }
     }
 
-    fun addcertification() {
-
+    fun addCertification() {
+        val newCertification = Certification(
+            habitId = habitId,
+            date = Date(System.currentTimeMillis()),
+            habit = habit,
+            detail = detail,
+            image = if (typeText == "image") selectedUri.toString() else null,
+            voice = if (typeText == "image") null else selectedUri.toString()
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            insertCertification(newCertification)
+        }
+        habitId = 0
+        habit = ""
+        detail = ""
+        typeText = "image"
     }
 }
 

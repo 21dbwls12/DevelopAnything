@@ -29,7 +29,7 @@ data class Certification(
 ) {
     val formattedDate: String
         get() {
-            val formatter = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             return formatter.format(date)
         }
 }

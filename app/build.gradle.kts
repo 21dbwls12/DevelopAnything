@@ -98,7 +98,9 @@ dependencies {
     implementation ("androidx.room:room-paging:$roomVersion")
 
     // coil
-    implementation("io.coil-kt:coil-compose:2.3.0")
-    implementation("io.coil-kt:coil-video:2.3.0")
-    implementation("io.coil-kt:coil-gif:2.3.0")
+    val coilVersion = "2.6.0"
+
+    implementation("io.coil-kt:coil-compose:$coilVersion")
+    implementation("io.coil-kt:coil-video:$coilVersion")
+    implementation("io.coil-kt:coil-gif:$coilVersion")
 }

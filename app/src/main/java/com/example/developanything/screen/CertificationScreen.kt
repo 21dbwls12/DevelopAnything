@@ -1,10 +1,11 @@
 package com.example.developanything.screen
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,13 +17,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,6 +41,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -50,6 +55,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -61,10 +68,12 @@ import androidx.navigation.NavController
 import com.example.developanything.Colors
 import com.example.developanything.R
 import com.example.developanything.room.Habit
-import com.example.developanything.ui.theme.DarkTree
-import com.example.developanything.ui.theme.LightTree
+import com.example.developanything.ui.theme.BrightSky
 import com.example.developanything.ui.theme.Sky
 import com.example.developanything.viewmodel.HabitViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -83,11 +92,10 @@ fun CertificationScreen(
         state = pagerState,
         pagerSnapDistance = PagerSnapDistance.atMost(10)
     )
-    val pickMedia = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            viewModel.selectedUri = uri
+    val audioPickerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+            viewModel.selectedUri = it
         }
-    }
 
     ScaffoldBar(colors = colors, currentRoute = currentRoute, viewModel = viewModel) { it ->
         Column(
@@ -125,17 +133,25 @@ fun CertificationScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                contentPadding = PaddingValues(horizontal = 25.dp),
+                contentPadding = PaddingValues(horizontal = 40.dp),
                 pageSpacing = 15.dp,
-                flingBehavior = fling
+                flingBehavior = fling,
+                userScrollEnabled = !viewModel.flipCard,
             ) {
                 HabitCard(
+                    colors = colors,
                     habit = habitList[it],
+                    viewModel = viewModel,
                     pagerState = pagerState,
                     page = it,
                 ) {
+                    viewModel.habitId = it
+                    viewModel.habit = habitList[it].habit
+                    viewModel.typeText = habitList[it].type
                     if (habitList[it].type == "image") {
-                        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                        viewModel.flipCard = !viewModel.flipCard
+                    } else {
+                        audioPickerLauncher.launch(arrayOf("audio/*"))
                     }
                 }
             }
@@ -203,31 +219,43 @@ fun ScaffoldBar(
             }
         },
         containerColor = colors.background
-    ) { it ->
+    ) { paddingValues ->
         if (viewModel.clickAdd) {
+            viewModel.cancelAddHabit()
             AddCBottomSheet(
                 colors = colors,
                 sheetState = sheetState,
                 viewModel = viewModel,
             )
         }
-        content(it)
+        content(paddingValues)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HabitCard(
+    colors: Colors,
     habit: Habit,
+    viewModel: HabitViewModel,
     pagerState: PagerState,
     page: Int,
     onclick: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    val currentDate = Date(System.currentTimeMillis())
+    val formatDate =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(currentDate.toString())
+    val certificationList by viewModel.allCertification.observeAsState(initial = emptyList())
+    val seletedCerti = certificationList.filter { it.date == formatDate && it.habit == habit.habit }
+    val thisCerti = seletedCerti[0]
+
     Card(
         onClick = onclick,
         elevation = CardDefaults.cardElevation(5.dp),
-        colors = CardDefaults.cardColors(if (habit.type == "image") LightTree else DarkTree),
+        colors = CardDefaults.cardColors(colors.background),
         shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(2.dp, BrightSky),
         modifier = Modifier
             .fillMaxHeight()
             .padding(vertical = 15.dp)
@@ -240,9 +268,9 @@ fun HabitCard(
 
                 // We animate the alpha, between 50% and 100%
                 alpha = lerp(
-                    start = 0.5f,
+                    start = if (viewModel.flipCard) 0f else 0.5f,
                     stop = 1f,
-                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
                 )
                 // 높이과 위치 변경
                 lerp(
@@ -257,26 +285,41 @@ fun HabitCard(
                 }
             }
     ) {
+        if (viewModel.flipCard) {
+            BackSurface(colors = colors, viewModel = viewModel)
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(10.dp)
+                .padding(25.dp)
                 .fillMaxWidth()
         ) {
+            Image(
+                painter = painterResource(id = if (habit.type == "image") R.drawable.camera else R.drawable.voice),
+                contentDescription = "",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(250.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            )
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = habit.habit,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = colors.text
             )
             Spacer(modifier = Modifier.height(20.dp))
             habit.detail?.let {
                 Text(
                     text = it,
-                    fontSize = 19.sp,
-                    color = Color.White,
+                    fontSize = 15.sp,
+                    color = colors.text,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .verticalScroll(scrollState)
                 )
             }
         }
@@ -448,5 +491,61 @@ fun AddButton(colors: Colors, icon: Int, condition: Boolean, onClick: () -> Unit
             tint = if (condition) colors.star else Color.LightGray,
             modifier = Modifier.size(40.dp)
         )
+    }
+}
+
+@Composable
+fun BackSurface(colors: Colors, viewModel: HabitViewModel) {
+    val context = LocalContext.current
+    val pickMedia =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                viewModel.selectedUri = uri
+                viewModel.flipCard = false
+                viewModel.addCertification()
+            }
+        }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview(),
+        onResult = { bitmap ->
+            if (bitmap != null) {
+                viewModel.selectedUri = getImageUriFromBitmap(context, bitmap)
+                viewModel.flipCard = false
+                viewModel.addCertification()
+            }
+        }
+    )
+
+    Surface(
+        color = colors.opBackground,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            SelectButton(text = "카메라", colors = colors) {
+                cameraLauncher.launch(null)
+            }
+            SelectButton(text = "앨범", colors = colors) {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectButton(text: String, colors: Colors, onclick: () -> Unit) {
+    Button(
+        onClick = onclick,
+        border = BorderStroke(1.dp, BrightSky),
+        colors = ButtonDefaults.buttonColors(colors.opBackground),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .width(120.dp)
+            .height(60.dp)
+    ) {
+        Text(text = text, color = colors.opText, fontSize = 20.sp)
     }
 }
