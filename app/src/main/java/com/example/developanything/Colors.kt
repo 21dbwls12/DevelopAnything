@@ -7,4 +7,5 @@ data class Colors(
     val star: Color,
     val text: Color,
     val opBackground: Color,
+    val opText: Color,
 )
