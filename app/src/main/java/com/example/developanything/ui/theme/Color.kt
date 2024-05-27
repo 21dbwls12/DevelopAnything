@@ -22,10 +22,12 @@ val LightColors = Colors(
     background = Color(0xFFF0F0F2),
     star = Color(0xFFF28705),
     text = Color.Black,
+    opBackground = Color(0xFF0D0D0D),
 )
 
 val DarkColors = Colors(
     background = Color(0xFF0D0D0D),
     star = Color(0xFFD5E5F2),
     text = Color.White,
+    opBackground = Color(0xFFF0F0F2),
 )
