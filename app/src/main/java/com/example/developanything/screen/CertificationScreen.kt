@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,10 +58,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.developanything.Colors
 import com.example.developanything.R
+import com.example.developanything.room.Habit
 import com.example.developanything.ui.theme.DarkTree
 import com.example.developanything.ui.theme.LightTree
 import com.example.developanything.ui.theme.Sky
 import com.example.developanything.viewmodel.HabitViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun CertificationScreen(
@@ -68,8 +73,9 @@ fun CertificationScreen(
     viewModel: HabitViewModel = viewModel(),
     navController: NavController
 ) {
-    val clickNaviIcon by remember { mutableStateOf(false) }
+//    val clickNaviIcon by remember { mutableStateOf(false) }
     val currentRoute = navController.currentDestination?.route
+    val habitList = viewModel.getHabitList()
 
     ScaffoldBar(colors = colors, currentRoute = currentRoute, viewModel = viewModel) {
         Column(
@@ -87,11 +93,8 @@ fun CertificationScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(0.998f)
             ) {
-                items(2) {
-                    HabitCard(color = LightTree, deviceWidth = deviceWidth) {
-
-                    }
-                    HabitCard(color = DarkTree, deviceWidth = deviceWidth) {
+                items(habitList.value) {
+                    HabitCard(color = LightTree, habit = it, deviceWidth = deviceWidth) {
 
                     }
                 }
@@ -173,7 +176,7 @@ fun ScaffoldBar(
 }
 
 @Composable
-fun HabitCard(color: Color, deviceWidth: Float, onclick: () -> Unit) {
+fun HabitCard(color: Color, habit: Habit, deviceWidth: Float, onclick: () -> Unit) {
     Card(
         onClick = onclick,
         elevation = CardDefaults.cardElevation(5.dp),
@@ -248,11 +251,13 @@ fun NaviIconButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCBottomSheet(colors: Colors, sheetState: SheetState, setClickAdd: (Boolean) -> Unit) {
+fun AddCBottomSheet(colors: Colors, sheetState: SheetState, viewModel: HabitViewModel = viewModel(), setClickAdd: (Boolean) -> Unit) {
     var habit by remember { mutableStateOf("") }
     var detail by remember { mutableStateOf("") }
     var clickImage by remember { mutableStateOf(true) }
     var clickVoice by remember { mutableStateOf(false) }
+    var typeText by remember { mutableStateOf("image") }
+    val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -263,7 +268,17 @@ fun AddCBottomSheet(colors: Colors, sheetState: SheetState, setClickAdd: (Boolea
         modifier = Modifier.heightIn(min = 500.dp, max = Int.MAX_VALUE.dp)
     ) {
         Button(
-            onClick = {  },
+            onClick = {
+                if (habit.isNotBlank() && typeText.isNotBlank()) {
+                    val newHabit = Habit(habit = habit, detail = detail, type = typeText)
+                    scope.launch(Dispatchers.IO) {
+                        viewModel.insertHabit(newHabit)
+                    }
+                    habit = ""
+                    detail = ""
+                    setClickAdd(false)
+                }
+            },
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(colors.background),
             modifier = Modifier.fillMaxWidth()
@@ -310,6 +325,7 @@ fun AddCBottomSheet(colors: Colors, sheetState: SheetState, setClickAdd: (Boolea
                     ) {
                         clickImage = true
                         clickVoice = false
+                        typeText = "image"
                     }
                     AddButton(
                         colors = colors,
@@ -318,6 +334,7 @@ fun AddCBottomSheet(colors: Colors, sheetState: SheetState, setClickAdd: (Boolea
                     ) {
                         clickImage = false
                         clickVoice = true
+                        typeText = "voice"
                     }
                 }
             }

@@ -10,8 +10,8 @@ import java.util.Date
 @Dao
 interface DateStatsDao {
     @Query("SELECT * FROM date_stats")
-    fun getDateStats(date: Date): Flow<DateStats>
+    fun getDateStats(): Flow<DateStats>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(dateStats: DateStats)
+    fun insertDateStats(dateStats: DateStats)
 }
