@@ -26,3 +26,6 @@
 ### 006.habit
 
 - [습관 인증 앱](https://github.com/21dbwls12/DevelopAnything/tree/006.habit)
+
+### 007.openAI
+- [서버통신-Open API 앱](https://github.com/21dbwls12/DevelopAnything/tree/007.openAI)
