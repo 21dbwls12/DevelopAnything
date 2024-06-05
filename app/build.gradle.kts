@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    // ktor-serialization
+    id("kotlinx-serialization")
 }
 
 android {
@@ -67,5 +69,17 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    //Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.google.code.gson:gson:2.10.1")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    // ktor
+    implementation("io.ktor:ktor-client-core:2.1.3")
+    implementation("io.ktor:ktor-client-cio:2.1.3")
+    implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
+    testImplementation("io.ktor:ktor-client-mock:2.1.3")
+    // ktor-serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
 
 }
