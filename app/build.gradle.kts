@@ -74,6 +74,8 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.10.1")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     // ktor
+    implementation("io.ktor:ktor-server-core:2.3.11")
+    implementation("io.ktor:ktor-server-netty:2.3.11")
     implementation("io.ktor:ktor-client-core:2.1.3")
     implementation("io.ktor:ktor-client-cio:2.1.3")
     implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
