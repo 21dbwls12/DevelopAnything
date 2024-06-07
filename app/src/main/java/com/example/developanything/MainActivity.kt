@@ -19,7 +19,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    val restAPIKey = BuildConfig.REST_API_KEY
+
+                    MainScreen(restAPIKey)
                 }
             }
         }
