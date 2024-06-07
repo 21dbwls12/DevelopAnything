@@ -88,5 +88,8 @@ dependencies {
     // ktor-serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
+    // View Model
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
+
 
 }
