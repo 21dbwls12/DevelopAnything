@@ -16,7 +16,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun MainScreen() {
+fun MainScreen(restAPIKey: String) {
     var clickRetrofit by remember { mutableStateOf(true) }
     var clickKtor by remember { mutableStateOf(false) }
 
