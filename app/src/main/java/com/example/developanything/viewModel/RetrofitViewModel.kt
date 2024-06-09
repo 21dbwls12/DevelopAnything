@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class MainViewModel: ViewModel() {
+class RetrofitViewModel: ViewModel() {
     private val kakaoAPI = Retrofit.Builder()
         .baseUrl("https://api.kakaobrain.com/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -23,11 +23,13 @@ class MainViewModel: ViewModel() {
     val response = MutableLiveData<ResponseData>()
 
     fun generateImage(prompt: String) {
-        Log.d("MainViewModel", "Generating image with prompt: $prompt")
+        Log.d("RetrofitViewModel", "Generating image with prompt: $prompt")
         viewModelScope.launch() {
             val requestData = RequestData(prompt = prompt)
             val result = kakaoAPI.generateImage(restAPIKey, requestData)
-            response.value = result.body()
+            response.postValue(result.body())
+            Log.d("RetrofitViewModel", "Response from server: $response")
+            Log.d("RetrofitViewModel", "Response from server: ${response.value}")
         }
     }
 }

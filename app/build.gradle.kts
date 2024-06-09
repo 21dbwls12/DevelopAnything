@@ -88,7 +88,7 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:2.3.11")
     // ktor-serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
     // View Model
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
