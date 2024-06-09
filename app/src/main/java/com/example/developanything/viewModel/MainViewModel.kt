@@ -8,7 +8,6 @@ import com.example.developanything.BuildConfig
 import com.example.developanything.data.dataSource.KakaoAPI
 import com.example.developanything.data.model.RequestData
 import com.example.developanything.data.model.ResponseData
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
