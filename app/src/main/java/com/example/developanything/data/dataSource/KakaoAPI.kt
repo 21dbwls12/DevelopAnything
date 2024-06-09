@@ -1,7 +1,7 @@
 package com.example.developanything.data.dataSource
 
-import com.example.developanything.data.model.RequestData
-import com.example.developanything.data.model.ResponseData
+import com.example.developanything.data.model.RetrofitRequestData
+import com.example.developanything.data.model.RetrofitResponseData
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -13,8 +13,8 @@ interface KakaoAPI {
     @Headers("Content-Type: application/json")
     suspend fun generateImage(
         @Header("Authorization") token: String,
-        @Body requestData: RequestData,
+        @Body retrofitRequestData: RetrofitRequestData,
 
-        ): Response<ResponseData>
+        ): Response<RetrofitResponseData>
 
 }

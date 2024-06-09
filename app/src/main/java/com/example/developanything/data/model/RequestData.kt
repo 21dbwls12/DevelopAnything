@@ -2,7 +2,7 @@ package com.example.developanything.data.model
 
 import kotlinx.serialization.Serializable
 
-data class RequestData(
+data class RetrofitRequestData(
     val version: String = "v2.1",
     val prompt: String,
     val width: Int = 1024,

@@ -2,7 +2,7 @@ package com.example.developanything.data.model
 
 import kotlinx.serialization.Serializable
 
-data class Image(
+data class RetrofitImage(
     val id: String,
     val seed: Int,
     val image: String

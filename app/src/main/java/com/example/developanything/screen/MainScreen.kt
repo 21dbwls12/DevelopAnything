@@ -1,9 +1,7 @@
 package com.example.developanything.screen
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
-import android.widget.Button
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,13 +29,8 @@ import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.example.developanything.data.model.KtorRequestData
-import com.example.developanything.data.model.ResponseData
 import com.example.developanything.viewModel.KtorViewModel
 import com.example.developanything.viewModel.RetrofitViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.net.URL
-import java.net.URLDecoder
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -54,10 +47,10 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
     val ktorData by ktorViewModel.responseData.collectAsState()
     var decodeUri: String
 
-    LaunchedEffect(key1 = response?.images) {
-        painter = response?.images?.getOrNull(0)?.image
+    LaunchedEffect(key1 = response?.retrofitImages) {
+        painter = response?.retrofitImages?.getOrNull(0)?.image
         Log.d("MainScreen", "Response id: ${response?.id}")
-        Log.d("MainScreen", "Response images: ${response?.images}")
+        Log.d("MainScreen", "Response images: ${response?.retrofitImages}")
         Log.d("MainScreen", "Response model_version: ${response?.model_version}")
 //        if (painter != null) {
 //            decodeUri = String(Base64.UrlSafe.decode(painter!!))

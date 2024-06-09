@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.developanything.BuildConfig
 import com.example.developanything.data.dataSource.KakaoAPI
-import com.example.developanything.data.model.RequestData
-import com.example.developanything.data.model.ResponseData
+import com.example.developanything.data.model.RetrofitRequestData
+import com.example.developanything.data.model.RetrofitResponseData
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,13 +20,13 @@ class RetrofitViewModel: ViewModel() {
         .create(KakaoAPI::class.java)
 
     private val restAPIKey = BuildConfig.REST_API_KEY
-    val response = MutableLiveData<ResponseData>()
+    val response = MutableLiveData<RetrofitResponseData>()
 
     fun generateImage(prompt: String) {
         Log.d("RetrofitViewModel", "Generating image with prompt: $prompt")
         viewModelScope.launch() {
-            val requestData = RequestData(prompt = prompt)
-            val result = kakaoAPI.generateImage(restAPIKey, requestData)
+            val retrofitRequestData = RetrofitRequestData(prompt = prompt)
+            val result = kakaoAPI.generateImage(restAPIKey, retrofitRequestData)
             response.postValue(result.body())
             Log.d("RetrofitViewModel", "Response from server: $response")
             Log.d("RetrofitViewModel", "Response from server: ${response.value}")
