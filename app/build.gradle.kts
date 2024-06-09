@@ -90,6 +90,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
     // View Model
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
+    // coil
+    val coilVersion = "2.6.0"
 
-
+    implementation("io.coil-kt:coil-compose:$coilVersion")
 }
