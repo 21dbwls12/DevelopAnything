@@ -83,6 +83,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:2.3.11")
     implementation("io.ktor:ktor-client-core:2.3.11")
     implementation("io.ktor:ktor-client-cio:2.3.11")
+    implementation("io.ktor:ktor-client-logging:2.3.11")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
     testImplementation("io.ktor:ktor-client-mock:2.3.11")
     // ktor-serialization
