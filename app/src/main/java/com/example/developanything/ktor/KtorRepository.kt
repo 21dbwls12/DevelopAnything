@@ -6,9 +6,9 @@ import com.example.developanything.data.model.KtorRequestData
 import com.example.developanything.data.model.KtorResponseData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.call.receive
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.RedirectResponseException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -23,7 +23,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.InternalAPI
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.json.Json
 import kotlin.jvm.Throws
@@ -36,16 +35,11 @@ class KtorRepository {
     private val client = HttpClient(CIO) {
         expectSuccess = true
 
-//        install(DefaultRequest) {
-//            header(HttpHeaders.Authorization, "KakaoAK ${BuildConfig.REST_API_KEY}")
-//            contentType(ContentType.Application.Json)
-//            accept(ContentType.Application.Json)
-//        }
-
-//        defaultRequest {
-//            header(HttpHeaders.Authorization, "KakaoAK ${BuildConfig.REST_API_KEY}")
-//            contentType(ContentType.Application.Json)
-//        }
+        // header 기본값으로 지정
+        install(DefaultRequest) {
+            header(HttpHeaders.Authorization, "KakaoAK ${BuildConfig.REST_API_KEY}")
+            contentType(ContentType.Application.Json)
+        }
 
         install(ContentNegotiation) {
             json(Json {
@@ -94,14 +88,14 @@ class KtorRepository {
         else -> 9999
     }
 
-    @OptIn(InternalAPI::class)
     @Throws
     suspend fun getResponseKtor(requestData: KtorRequestData): KtorResponseData? {
         Log.d(TAG, "requestData: $requestData")
         try {
             val response: HttpResponse = client.post("https://api.kakaobrain.com/v2/inference/karlo/t2i") {
-                header(HttpHeaders.Authorization, "KakaoAK ${BuildConfig.REST_API_KEY}")
-                contentType(ContentType.Application.Json)
+                // body = requestData
+                // 위처럼 했다가 계속 직렬화가 잘 안되었다고 에러가 떴음
+                // 아래처럼 해결
                 setBody(body = requestData)
             }
             return response.body<KtorResponseData>()
@@ -110,16 +104,4 @@ class KtorRepository {
             return null
         }
     }
-
-//    fun responseAPI(prompt: String) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            @OptIn(InternalAPI::class)
-//            val response: HttpResponse =
-//                client.post("https://api.kakaobrain.com/v2/inference/karlo/t2i") {
-//                    header(HttpHeaders.Authorization, "KakaoAK ${BuildConfig.REST_API_KEY}")
-//                    contentType(ContentType.Application.Json)
-//                    body = RequestData(prompt = prompt)
-//                }
-//        }
-//    }
 }

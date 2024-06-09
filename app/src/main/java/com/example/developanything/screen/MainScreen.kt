@@ -101,7 +101,6 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
 //            }
 //            bitmap?.let { ResponseImage(painter = bitmap) }
         } else {
-//            KtorPage("ktor")
             PromptLine(value = prompt, onValueChange = { prompt = it }) {
                 val currentPrompt = prompt
                 ktorViewModel.requestKtor(KtorRequestData(prompt = currentPrompt))
@@ -142,10 +141,6 @@ fun PromptLine(value: String, onValueChange: (String) -> Unit, onClick: () -> Un
         TextField(
             value = value,
             onValueChange = onValueChange,
-//            keyboardActions = KeyboardActions(onDone = {
-////                keyboardController?.hide()
-//
-//            }),
             Modifier
                 .fillMaxWidth(0.85f)
         )
@@ -161,13 +156,6 @@ fun PromptLine(value: String, onValueChange: (String) -> Unit, onClick: () -> Un
 }
 
 @Composable
-fun KtorPage(name: String) {
-    Text(
-        text = "Hello $name!",
-    )
-}
-
-@Composable
 fun ResponseImage(painter: String) {
     val context = LocalContext.current
     val imageLoader = ImageLoader(context)
@@ -178,31 +166,3 @@ fun ResponseImage(painter: String) {
         imageLoader = imageLoader,
     )
 }
-
-//@Composable
-//fun ResponseImageBitmap(painter: Bitmap?) {
-//    Image(bitmap = painter!!.asImageBitmap(), contentDescription = "null")
-//}
-
-suspend fun getBitmapFromURL(src: String): Bitmap {
-    return withContext(Dispatchers.IO) {
-        val url = URL(src)
-        BitmapFactory.decodeStream(url.openConnection().getInputStream())
-    }
-}
-
-//@Composable
-//fun getBitmap(uri: Uri): Bitmap? {
-//    val context = LocalContext.current
-//
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//        ImageDecoder.decodeBitmap(
-//            ImageDecoder.createSource(
-//                context.contentResolver,
-//                uri
-//            )
-//        )
-//    } else {
-//        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-//    }
-//}
