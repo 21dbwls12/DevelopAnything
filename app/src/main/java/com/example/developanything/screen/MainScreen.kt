@@ -1,7 +1,6 @@
 package com.example.developanything.screen
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,31 +30,19 @@ import coil.compose.AsyncImage
 import com.example.developanything.data.model.KtorRequestData
 import com.example.developanything.viewModel.KtorViewModel
 import com.example.developanything.viewModel.RetrofitViewModel
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewModel) {
     var clickRetrofit by remember { mutableStateOf(true) }
     var clickKtor by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var prompt by remember { mutableStateOf("") }
-    val response by retrofitViewModel.response.observeAsState()
+    val retrofitResponse by retrofitViewModel.response.observeAsState()
     var painter by remember { mutableStateOf<String?>(null) }
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     val ktorData by ktorViewModel.responseData.collectAsState()
-    var decodeUri: String
 
-    LaunchedEffect(key1 = response?.retrofitImages) {
-        painter = response?.retrofitImages?.getOrNull(0)?.image
-        Log.d("MainScreen", "Response id: ${response?.id}")
-        Log.d("MainScreen", "Response images: ${response?.retrofitImages}")
-        Log.d("MainScreen", "Response model_version: ${response?.model_version}")
-//        if (painter != null) {
-//            decodeUri = String(Base64.UrlSafe.decode(painter!!))
-//        }
-//        bitmap = getBitmap(response?.images?.getOrNull(0)?.image ?: "")
+    LaunchedEffect(key1 = retrofitResponse?.retrofitImages) {
+        painter = retrofitResponse?.retrofitImages?.getOrNull(0)?.image
     }
 
     Column(
@@ -77,27 +64,17 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
             PromptLine(value = prompt, onValueChange = { prompt = it }) {
                 val currentPrompt = prompt
                 retrofitViewModel.generateImage(currentPrompt)
-                Log.d("MainScreen", "Generate Image button clicked with value: $prompt")
                 keyboardController?.hide()
                 prompt = ""
             }
-//            if (response != null) {
-//                val painter = rememberAsyncImagePainter(model = response?.images)
 
             painter?.let {
-                Log.d("MainScreen", "Response Image: $it")
-                decodeUri = String(Base64.UrlSafe.decode(painter!!))
-                Log.d("MainScreen", "Response Image1: $decodeUri")
-                ResponseImage(decodeUri)
-                Log.d("MainScreen", "Response Image2: $decodeUri")
+                ResponseImage(it)
             }
-//            }
-//            bitmap?.let { ResponseImage(painter = bitmap) }
         } else {
             PromptLine(value = prompt, onValueChange = { prompt = it }) {
                 val currentPrompt = prompt
                 ktorViewModel.requestKtor(KtorRequestData(prompt = currentPrompt))
-                Log.d("MainScreen", "Generate Image button clicked with value: $prompt")
                 keyboardController?.hide()
                 prompt = ""
             }
