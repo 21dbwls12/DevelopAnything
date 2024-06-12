@@ -4,15 +4,11 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.developanything.BuildConfig
 import com.example.developanything.retrofit.KakaoAPI
 import com.example.developanything.model.RetrofitRequestData
 import com.example.developanything.model.RetrofitResponseData
 import com.example.developanything.retrofit.RetrofitFactory
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,14 +20,14 @@ class RetrofitViewModel : ViewModel() {
 
     private val restAPIKey = BuildConfig.REST_API_KEY
 
-    private val retrofitCallAPI: KakaoAPI = RetrofitFactory.create()
+    private val retrofitAPI: KakaoAPI = RetrofitFactory.create()
     val response = MutableLiveData<RetrofitResponseData>()
 
-    fun generateImageCall(prompt: String, requestData: MutableState<RetrofitRequestData>) {
+    fun generateImage(prompt: String, requestData: MutableState<RetrofitRequestData>) {
         Log.d(TAG, "Generating image with prompt: $prompt")
 
         val call: Call<RetrofitResponseData> =
-            retrofitCallAPI.getGenerateImage(restAPIKey, requestData.value)
+            retrofitAPI.getGenerateImage(restAPIKey, requestData.value)
         call.enqueue(
             object : Callback<RetrofitResponseData> {
                 override fun onResponse(

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 // Ktor 사용하는 뷰모델
 class KtorViewModel: ViewModel() {
-    val server = KtorRepository()
+    private val server = KtorRepository()
     private val _responseData = MutableStateFlow<KtorResponseData?>(null)
     val responseData: StateFlow<KtorResponseData?> = _responseData
 

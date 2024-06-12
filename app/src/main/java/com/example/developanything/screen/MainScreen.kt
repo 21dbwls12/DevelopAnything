@@ -37,13 +37,13 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
     var clickKtor by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var prompt by remember { mutableStateOf("") }
-    val retrofitResponseCall by retrofitViewModel.response.observeAsState()
+    val retrofitResponse by retrofitViewModel.response.observeAsState()
     var painter by remember { mutableStateOf<String?>(null) }
     val retrofitData = remember { mutableStateOf(RetrofitRequestData(prompt = prompt)) }
     val ktorData by ktorViewModel.responseData.collectAsState()
 
-    LaunchedEffect(key1 = retrofitResponseCall?.images) {
-        painter = retrofitResponseCall?.images?.getOrNull(0)?.image
+    LaunchedEffect(key1 = retrofitResponse?.images) {
+        painter = retrofitResponse?.images?.getOrNull(0)?.image
     }
 
     Column(
@@ -70,7 +70,7 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
                 }
             ) {
                 val currentPrompt = prompt
-                retrofitViewModel.generateImageCall(currentPrompt, retrofitData)
+                retrofitViewModel.generateImage(currentPrompt, retrofitData)
                 keyboardController?.hide()
                 prompt = ""
             }
