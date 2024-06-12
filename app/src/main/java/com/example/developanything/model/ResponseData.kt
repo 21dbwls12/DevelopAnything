@@ -1,11 +1,11 @@
-package com.example.developanything.data.model
+package com.example.developanything.model
 
 import kotlinx.serialization.Serializable
 
 data class RetrofitResponseData(
     val id: String,
     val model_version: String,
-    val retrofitImages: List<RetrofitImage>
+    val images: List<RetrofitImage>
 )
 
 @Serializable

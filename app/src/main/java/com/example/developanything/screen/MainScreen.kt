@@ -1,7 +1,5 @@
 package com.example.developanything.screen
 
-import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,8 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import com.example.developanything.data.model.KtorRequestData
-import com.example.developanything.data.model.RetrofitRequestData
+import com.example.developanything.model.KtorRequestData
+import com.example.developanything.model.RetrofitRequestData
 import com.example.developanything.viewModel.KtorViewModel
 import com.example.developanything.viewModel.RetrofitViewModel
 
@@ -40,13 +37,13 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
     var clickKtor by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var prompt by remember { mutableStateOf("") }
-    val retrofitResponse by retrofitViewModel.response.observeAsState()
+    val retrofitResponseCall by retrofitViewModel.response.observeAsState()
     var painter by remember { mutableStateOf<String?>(null) }
-    val ktorData by ktorViewModel.responseData.collectAsState()
     val retrofitData = remember { mutableStateOf(RetrofitRequestData(prompt = prompt)) }
+    val ktorData by ktorViewModel.responseData.collectAsState()
 
-    LaunchedEffect(key1 = retrofitResponse?.retrofitImages) {
-        painter = retrofitResponse?.retrofitImages?.getOrNull(0)?.image
+    LaunchedEffect(key1 = retrofitResponseCall?.images) {
+        painter = retrofitResponseCall?.images?.getOrNull(0)?.image
     }
 
     Column(
@@ -73,12 +70,11 @@ fun MainScreen(retrofitViewModel: RetrofitViewModel, ktorViewModel: KtorViewMode
                 }
             ) {
                 val currentPrompt = prompt
-                retrofitViewModel.generateImage(currentPrompt, retrofitData)
+                retrofitViewModel.generateImageCall(currentPrompt, retrofitData)
                 keyboardController?.hide()
                 prompt = ""
             }
 
-            Log.d("MainActivity", "painter: $painter")
             painter?.let {
                 ResponseImage(it)
             }

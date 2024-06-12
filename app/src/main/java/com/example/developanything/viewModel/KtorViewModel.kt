@@ -3,8 +3,8 @@ package com.example.developanything.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.developanything.data.model.KtorRequestData
-import com.example.developanything.data.model.KtorResponseData
+import com.example.developanything.model.KtorRequestData
+import com.example.developanything.model.KtorResponseData
 import com.example.developanything.ktor.KtorRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -2,8 +2,8 @@ package com.example.developanything.ktor
 
 import android.util.Log
 import com.example.developanything.BuildConfig
-import com.example.developanything.data.model.KtorRequestData
-import com.example.developanything.data.model.KtorResponseData
+import com.example.developanything.model.KtorRequestData
+import com.example.developanything.model.KtorResponseData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO

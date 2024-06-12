@@ -1,7 +1,7 @@
-package com.example.developanything.data.dataSource
+package com.example.developanything.retrofit
 
-import com.example.developanything.data.model.RetrofitRequestData
-import com.example.developanything.data.model.RetrofitResponseData
+import com.example.developanything.model.RetrofitRequestData
+import com.example.developanything.model.RetrofitResponseData
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -14,7 +14,5 @@ interface KakaoAPI {
     fun getGenerateImage(
         @Header("Authorization") token: String,
         @Body retrofitRequestData: RetrofitRequestData,
-
         ): Call<RetrofitResponseData>
-
 }
