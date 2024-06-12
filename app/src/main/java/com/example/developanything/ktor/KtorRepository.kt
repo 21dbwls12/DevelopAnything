@@ -59,7 +59,7 @@ class KtorRepository {
                     Log.d(TAG, message)
                 }
             }
-            level = LogLevel.HEADERS
+            level = LogLevel.ALL
             filter { request ->
                 request.url.host.contains("ktor.io")
             }
