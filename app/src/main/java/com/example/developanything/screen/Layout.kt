@@ -1,17 +1,22 @@
 package com.example.developanything.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Checkbox
@@ -23,6 +28,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.example.developanything.room.RoomDB
 import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +82,7 @@ fun ListContainer(content: @Composable () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .padding(start = 5.dp, end = 5.dp)
+            .fillMaxHeight()
     ) {
         content()
     }
@@ -87,6 +95,8 @@ fun TodoWithCheckbox(
     clickDelete: Boolean,
     checkCondition: Boolean,
     checkedRemoveUids: MutableList<Int>,
+    setClickAdd: (Boolean) -> Unit,
+    setClickTodo: (Todo?) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -99,13 +109,21 @@ fun TodoWithCheckbox(
     // 기존에 text를 따로 받아오던 것도 위의 checked와 같은 오류가 생김 (clickDelete가 true가 되면 빨간색 체크 박스에만 없어야하는데 원래 화면에 있던 text가 같이 사라짐)
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
+    var finishDate by remember { mutableStateOf("") }
     if (!clickDelete) {
         text = todo.todo
         memo = todo.memo ?: ""
+        finishDate = todo.finishDate ?: ""
     }
 
     Row(
         verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .clickable {
+                setClickAdd(true)
+                setClickTodo(todo)
+            }
+            .fillMaxWidth()
     ) {
         if (clickDelete) {
             Checkbox(
@@ -144,6 +162,11 @@ fun TodoWithCheckbox(
             ),
             enabled = checkCondition
         )
+        Text(
+            text = todo.priority.toString(),
+            color = Color(0xFFF2C12E),
+            modifier = Modifier.padding(top = 12.dp, end = 12.dp)
+        )
         Column(
             modifier = Modifier.padding(top = 12.dp)
         ) {
@@ -159,6 +182,13 @@ fun TodoWithCheckbox(
                     textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
                 )
             }
+            if (finishDate.isNotBlank()) {
+                Text(
+                    text = finishDate,
+                    // text 취소선(체크박스를 눌렀을 때만)
+                    textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
+                )
+            }
         }
     }
 }
@@ -166,30 +196,78 @@ fun TodoWithCheckbox(
 @Composable
 fun AddTodo(
     setClickAdd: (Boolean) -> Unit,
-    focusToTextField: FocusRequester
+    focusToTextField: FocusRequester,
+    todoCount: Int,
+    clickTodo: Todo?
 ) {
-    var text by remember { mutableStateOf("") }
-    var memo by remember { mutableStateOf("") }
-    val savedDate = currentTimeFormat()
+    var text by remember { mutableStateOf(clickTodo?.todo ?: "") }
+    var memo by remember { mutableStateOf(clickTodo?.memo ?: "") }
+    var finishDate by remember { mutableStateOf(clickTodo?.finishDate ?: "") }
+    var priority by remember { mutableIntStateOf(clickTodo?.priority ?: (todoCount + 1)) }
     val context = LocalContext.current
+    val todayTodo = RoomDB.getInstance(context).GetTodoList()
+    var reorderTodo = listOf<Todo?>()
+    var isBigger = false
+    val filteredTodo = clickTodo?.let { RoomDB.getInstance(context).GetTodo(uid = it.uid) }
+    val savedDate = currentTimeFormat()
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     fun addTodoInList() {
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
-        if (text.isNotBlank()) {
+        if (text.isNotBlank() && (finishDate.isBlank() || (finishDate.length == 8 && finishDate.isDigitsOnly()))) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate, memo = memo)
-            // 위에서 생성한 객체 db에 추가
-            scope.launch(Dispatchers.IO) {
-                RoomDB.getInstance(context).insertTodo(newTodo)
+            if (clickTodo != null) {
+                filteredTodo!!.todo = text
+                filteredTodo.date = savedDate
+                filteredTodo.memo = memo
+                filteredTodo.finishDate = finishDate
+                filteredTodo.priority = priority
+
+                if (clickTodo.priority != priority) {
+                    when (clickTodo.priority < priority) {
+                        true -> {
+                            reorderTodo =
+                                todayTodo.filter { it.priority > clickTodo.priority && it.priority <= priority }
+                            isBigger = true
+                        }
+
+                        else -> {
+                            reorderTodo =
+                                todayTodo.filter { it.priority < clickTodo.priority && it.priority >= priority }
+                            isBigger = false
+                        }
+                    }
+                }
+                scope.launch(Dispatchers.IO) {
+                    RoomDB.getInstance(context).updateTodo(filteredTodo)
+                    RoomDB.getInstance(context).pushPriority(reorderTodo, isBigger)
+                }
+            } else {
+                val newTodo = Todo(
+                    todo = text,
+                    date = savedDate,
+                    memo = memo,
+                    finishDate = finishDate,
+                    priority = priority
+                )
+                // 위에서 생성한 객체 db에 추가
+                scope.launch(Dispatchers.IO) {
+                    RoomDB.getInstance(context).insertTodo(newTodo)
+                }
             }
             text = ""
             memo = ""
+            finishDate = ""
             setClickAdd(false)
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .imePadding()
+    ) {
         Row {
             TextField(
                 value = text,
@@ -219,28 +297,60 @@ fun AddTodo(
                 addTodoInList()
             }
         }
-        TextField(
+        AddTextField(
             value = memo,
-            onValueChange = { memo = it },
-            shape = RoundedCornerShape(15.dp),
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                cursorColor = Color(0xFF024959),
-                focusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.Black,
-            ),
-            placeholder = { Text(text = "메모") },
-            modifier = Modifier.padding(0.dp),
-        )
+            onValueChange = { memo = it }
+        ) {
+            Text(text = "메모")
+        }
+        AddTextField(
+            value = finishDate,
+            onValueChange = { finishDate = it }
+        ) {
+            Text(text = "마감일자(20240407)")
+        }
+        if (clickTodo != null) {
+            AddTextField(
+                value = priority.toString(),
+                onValueChange = { priority = it.toInt() }
+            ) {
+
+            }
+        }
     }
 }
 
-fun currentTimeFormat(): String {
-    val currentTime = LocalDate.now()
-    // 현재 년, 월, 일을 20240323 이런식으로 출력
-    return currentTime.format(BASIC_ISO_DATE)
+@Composable
+fun AddTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: @Composable (() -> Unit)
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        shape = RoundedCornerShape(15.dp),
+        colors = TextFieldDefaults.colors(
+            unfocusedIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.Black,
+            cursorColor = Color(0xFF024959),
+            focusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            focusedTextColor = Color.Black,
+        ),
+        placeholder = placeholder,
+        modifier = Modifier.padding(0.dp),
+    )
+}
 
+
+private fun currentTimeFormat(): String {
+    val currentDate = LocalDate.now()
+    // 현재 년, 월, 일을 20240323 이런식으로 출력
+    return currentDate.format(BASIC_ISO_DATE)
+}
+
+fun stringToDate(date: String): LocalDate {
+    return LocalDate.parse(date, BASIC_ISO_DATE)
 }
