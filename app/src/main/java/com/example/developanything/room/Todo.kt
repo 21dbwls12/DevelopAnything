@@ -16,4 +16,6 @@ data class Todo(
     @ColumnInfo(name = "date") val date: String,
     // 메모
     @ColumnInfo(name = "memo") val memo: String?,
+    // 마감일자
+    @ColumnInfo(name = "finishDate") val finishDate: String?,
 )

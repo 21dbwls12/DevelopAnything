@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.example.developanything.room.RoomDB
 import com.example.developanything.room.Todo
 import kotlinx.coroutines.Dispatchers
@@ -99,9 +100,11 @@ fun TodoWithCheckbox(
     // 기존에 text를 따로 받아오던 것도 위의 checked와 같은 오류가 생김 (clickDelete가 true가 되면 빨간색 체크 박스에만 없어야하는데 원래 화면에 있던 text가 같이 사라짐)
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
+    var finishDate by remember { mutableStateOf("") }
     if (!clickDelete) {
         text = todo.todo
         memo = todo.memo ?: ""
+        finishDate = todo.finishDate ?: ""
     }
 
     Row(
@@ -159,6 +162,13 @@ fun TodoWithCheckbox(
                     textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
                 )
             }
+            if (finishDate.isNotBlank()) {
+                Text(
+                    text = finishDate,
+                    // text 취소선(체크박스를 눌렀을 때만)
+                    textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
+                )
+            }
         }
     }
 }
@@ -170,21 +180,23 @@ fun AddTodo(
 ) {
     var text by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
+    var finishDate by remember { mutableStateOf("") }
     val savedDate = currentTimeFormat()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     fun addTodoInList() {
         // 원래 선언해둔 list에 추가하던 방식말고 roomdb에 직접 넣어주는 방식으로 변경
-        if (text.isNotBlank()) {
+        if (text.isNotBlank() && (finishDate.isBlank() || (finishDate.length == 8 && finishDate.isDigitsOnly()))) {
             // db에 추가할 객체 생성
-            val newTodo = Todo(todo = text, date = savedDate, memo = memo)
+            val newTodo = Todo(todo = text, date = savedDate, memo = memo, finishDate = finishDate)
             // 위에서 생성한 객체 db에 추가
             scope.launch(Dispatchers.IO) {
                 RoomDB.getInstance(context).insertTodo(newTodo)
             }
             text = ""
             memo = ""
+            finishDate = ""
             setClickAdd(false)
         }
     }
@@ -219,28 +231,49 @@ fun AddTodo(
                 addTodoInList()
             }
         }
-        TextField(
+        AddTextField(
             value = memo,
-            onValueChange = { memo = it },
-            shape = RoundedCornerShape(15.dp),
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                cursorColor = Color(0xFF024959),
-                focusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                focusedTextColor = Color.Black,
-            ),
-            placeholder = { Text(text = "메모") },
-            modifier = Modifier.padding(0.dp),
-        )
+            onValueChange = { memo = it }
+        ) {
+            Text(text = "메모")
+        }
+        AddTextField(
+            value = finishDate,
+            onValueChange = { finishDate = it }
+        ) {
+            Text(text = "마감일자(20240407)")
+        }
     }
 }
 
-fun currentTimeFormat(): String {
-    val currentTime = LocalDate.now()
-    // 현재 년, 월, 일을 20240323 이런식으로 출력
-    return currentTime.format(BASIC_ISO_DATE)
+@Composable
+fun AddTextField(value: String, onValueChange: (String) -> Unit, placeholder: @Composable (() -> Unit)) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        shape = RoundedCornerShape(15.dp),
+        colors = TextFieldDefaults.colors(
+            unfocusedIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            unfocusedTextColor = Color.Black,
+            cursorColor = Color(0xFF024959),
+            focusedIndicatorColor = Color.Transparent,
+            focusedContainerColor = Color.Transparent,
+            focusedTextColor = Color.Black,
+        ),
+        placeholder = placeholder,
+        modifier = Modifier.padding(0.dp),
+    )
+}
 
+
+
+private fun currentTimeFormat(): String {
+    val currentDate = LocalDate.now()
+    // 현재 년, 월, 일을 20240323 이런식으로 출력
+    return currentDate.format(BASIC_ISO_DATE)
+}
+
+fun stringToDate(date: String): LocalDate {
+    return LocalDate.parse(date, BASIC_ISO_DATE)
 }
