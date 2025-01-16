@@ -65,5 +65,16 @@ dependencies {
 [Pager endless scroll](https://jizard.tistory.com/508#google_vignette)
 
 ### 피드백
+기기별로 화면 크기 정보 받아오기
+```kotlin
+//기기 높이
+val density = LocalDensity.current
+// Height 대신 Width 사용하면 너비
+// ..Scale 사용하면 크기 전체 다 가져올 수 있을라나??(확실치 않아서 실험해봐야함)
+val screenHeight = with(density) { LocalConfiguration.current.screenHeightDp.dp }
+
+// 이렇게도 됐었는데 잘못되기도 해서 위가 더 안정적임
+val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+```
 
 ### 사진
